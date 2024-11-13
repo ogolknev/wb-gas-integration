@@ -297,10 +297,10 @@ function checkConnection() {
     } catch (error) {
       switch ((error as HTTPExeption).status) {
         case HTTPExeptions.TooManyRequests:
-          Utils.log('WARN', "To many requests.")
+          Utils.log('UNSUCCESS', "To many requests.")
           break;
         case HTTPExeptions.Unauthorized:
-          Utils.log('WARN', "Unauthorized.")
+          Utils.log('UNSUCCESS', "Unauthorized.")
           break;
         default:
           throw error;
