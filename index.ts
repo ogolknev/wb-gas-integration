@@ -430,7 +430,11 @@ function getNms(fields = {
         },
       };
       response = API.getNms(payload, query);
+      Utils.sheet.put(templates.nms.name, toSheetData(response.content), 0, 1, {
+        template: Utils.data.pickFields(templates.nms.template, fields), clear: true
+      });
     }
+    Utils.sheet.removeEmptyCells(templates.nms.name)
     Utils.log('SUCCESS', "getNms.")
   } catch (error: unknown) {
     switch ((error as HTTPExeption).status) {
@@ -442,6 +446,35 @@ function getNms(fields = {
   }
 }
 function getOrders(
+  fields = {
+    date: false,
+    lastChangeDate: false,
+    warehouseName: false,
+    countryName: false,
+    oblastOkrugName: false,
+    regionName: false,
+    supplierArticle: false,
+    nmId: false,
+    barcode: false,
+    category: false,
+    subject: false,
+    brand: false,
+    techSize: false,
+    incomeID: false,
+    isSupply: false,
+    isRealization: false,
+    totalPrice: false,
+    discountPercent: false,
+    spp: false,
+    finishedPrice: false,
+    priceWithDisc: false,
+    isCancel: false,
+    cancelDate: false,
+    orderType: false,
+    sticker: false,
+    gNumber: false,
+    srid: false,
+  },
   dateFrom: string = Utils.date.toString(new Date()),
   flag: 1 | 0 = 1
 ) {
@@ -449,7 +482,7 @@ function getOrders(
     Utils.log('LOG', `Formatting response to sheet data.`)
     let data: any[][] = [];
     content.forEach((order) => {
-      data.push([
+      const line = [
         order.date,
         order.lastChangeDate,
         order.warehouseName,
@@ -477,7 +510,8 @@ function getOrders(
         order.sticker,
         order.gNumber,
         order.srid,
-      ]);
+      ];
+      data.push(Utils.data.pickFields(data, fields))
     });
     return data;
   };
@@ -491,7 +525,7 @@ function getOrders(
       0,
       1,
       {
-        template: templates.orders.template,
+        template: Utils.data.pickFields(templates.orders.template, fields),
       }
     );
     Utils.log('SUCCESS', "getOrders.")
@@ -506,6 +540,36 @@ function getOrders(
   }
 }
 function getSales(
+  fields = {
+    date: true,
+    lastChangeDate: true,
+    warehouseName: true,
+    countryName: true,
+    oblastOkrugName: true,
+    regionName: true,
+    supplierArticle: true,
+    nmId: true,
+    barcode: true,
+    category: true,
+    subject: true,
+    brand: true,
+    techSize: true,
+    incomeID: true,
+    isSupply: true,
+    isRealization: true,
+    totalPrice: true,
+    discountPercent: true,
+    spp: true,
+    paymentSaleAmount: true,
+    forPay: true,
+    finishedPrice: true,
+    priceWithDisc: true,
+    saleID: true,
+    orderType: true,
+    sticker: true,
+    gNumber: true,
+    srid: true,
+  },
   dateFrom: string = Utils.date.toString(new Date()),
   flag: 1 | 0 = 1
 ) {
@@ -513,7 +577,7 @@ function getSales(
     Utils.log('LOG', `Formatting response to sheet data.`)
     const data: any[][] = [];
     content.forEach((sale) => {
-      data.push([
+      const line = [
         sale.date,
         sale.lastChangeDate,
         sale.warehouseName,
@@ -542,7 +606,8 @@ function getSales(
         sale.sticker,
         sale.gNumber,
         sale.srid,
-      ]);
+      ];
+      data.push(Utils.data.pickFields(line, fields))
     });
     return data;
   };
@@ -551,7 +616,7 @@ function getSales(
     let query: Sales.Query = { dateFrom, flag };
     let response = API.getSales(query);
     Utils.sheet.put(templates.sales.name, toSheetData(response.content), 0, 1, {
-      template: templates.sales.template,
+      template: Utils.data.pickFields(templates.sales.template, fields),
     });
     Utils.log('SUCCESS', 'getSales.')
   } catch (error) {
@@ -564,12 +629,34 @@ function getSales(
     }
   }
 }
-function getStocks(dateFrom: string = Utils.date.toString(new Date())) {
+function getStocks(
+  fields = {
+    lastChangeDate: false,
+    warehouseName: false,
+    supplierArticle: false,
+    nmId: false,
+    barcode: false,
+    quantity: false,
+    inWayToClient: false,
+    inWayFromClient: false,
+    quantityFull: false,
+    category: false,
+    subject: false,
+    brand: false,
+    techSize: false,
+    Price: false,
+    Discount: false,
+    isSupply: false,
+    isRealization: false,
+    SCCode: false,
+  },
+  dateFrom: string = Utils.date.toString(new Date())
+) {
   const toSheetData = (content: Stocks.Response) => {
     Utils.log('LOG', `Formatting response to sheet data.`)
     const data: any[][] = [];
     content.forEach((stocks) => {
-      data.push([
+      const line = [
         stocks.lastChangeDate,
         stocks.warehouseName,
         stocks.supplierArticle,
@@ -588,7 +675,8 @@ function getStocks(dateFrom: string = Utils.date.toString(new Date())) {
         stocks.isSupply,
         stocks.isRealization,
         stocks.SCCode,
-      ]);
+      ];
+      data.push(Utils.data.pickFields(line, fields))
     });
     return data;
   };
@@ -599,10 +687,9 @@ function getStocks(dateFrom: string = Utils.date.toString(new Date())) {
     Utils.sheet.put(
       templates.stocks.name,
       toSheetData(response.content),
-      0,
-      1,
+      0, 1,
       {
-        template: templates.stocks.template,
+        template: Utils.data.pickFields(templates.stocks.template, fields)
       }
     );
     Utils.log('SUCCESS', 'getStocks.')
@@ -617,6 +704,17 @@ function getStocks(dateFrom: string = Utils.date.toString(new Date())) {
   }
 }
 function getProducts(
+  fields = {
+    nmID: false,
+    vendorCode: false,
+    sizeID: false,
+    price: false,
+    discountedPrice: false,
+    techSizeName: false,
+    currencyIsoCode4217: false,
+    discount: false,
+    editableSizePrice: false,
+  },
   limit: number = 1000,
   offset: number = 0,
   filterNmID?: number
@@ -626,7 +724,7 @@ function getProducts(
     const data: any[][] = [];
     content.data.listGoods.forEach((product) => {
       product.sizes.forEach((size) => {
-        data.push([
+        const line = [
           product.nmID,
           product.vendorCode,
           size.sizeID,
@@ -636,7 +734,8 @@ function getProducts(
           product.currencyIsoCode4217,
           product.discount,
           product.editableSizePrice,
-        ]);
+        ];
+        data.push(Utils.data.pickFields(line, fields))
       });
     });
     return data;
@@ -651,7 +750,7 @@ function getProducts(
       0,
       1,
       {
-        template: templates.products.template,
+        template: Utils.data.pickFields(templates.products.template, fields)
       }
     );
     while (response.content.data.listGoods.length >= 1000) {
@@ -664,7 +763,7 @@ function getProducts(
         0,
         1,
         {
-          template: templates.products.template,
+          template: Utils.data.pickFields(templates.products.template, fields)
         }
       );
     }
@@ -679,19 +778,26 @@ function getProducts(
     }
   }
 }
-function getAdLists() {
+function getAdLists(fields = {
+  type: false,
+  status: false,
+  count: false,
+  advertId: false,
+  changeTime: false,
+}) {
   const toSheetData = (content: AdLists.Response) => {
     Utils.log('LOG', `Formatting response to sheet data.`)
     const data: any[][] = [];
     content.adverts.forEach((adList) => {
       adList.advert_list.forEach((ad) => {
-        data.push([
+        const line = [
           adList.type,
           adList.status,
           adList.count,
           ad.advertId,
           ad.changeTime,
-        ]);
+        ];
+        data.push(Utils.data.pickFields(line, fields))
       });
     });
     return data;
@@ -703,7 +809,7 @@ function getAdLists() {
       toSheetData(response.content),
       0,
       1,
-      { clear: true, template: templates.adLists.template }
+      { clear: true, template: Utils.data.pickFields(templates.adLists.template, fields) }
     );
   } catch (error) {
     switch ((error as HTTPExeption).status) {
@@ -715,7 +821,10 @@ function getAdLists() {
     }
   }
 }
-function getAdInfo(adIds?: number[], query: AdInfo.Query = {}) {
+function getAdInfo(
+  adIds?: number[], 
+  query: AdInfo.Query = {}
+) {
   if (!adIds) {
     Utils.log('LOG', "No adIds in args. Receiving it from adLists.")
     const sheet = Utils.sheet.get(templates.adLists.name);
@@ -1064,6 +1173,16 @@ class Utils {
         `Transfering data(${data.length} records) to a sheet "${sheetName}" completed.`
       );
     },
+    removeEmptyCells: (sheetName: string) => {
+      const sheet = Utils.sheet.get(sheetName)
+
+      if (sheet.getMaxRows() > sheet.getLastRow()) {
+        sheet.deleteRows(sheet.getLastRow() + 1, sheet.getMaxRows() - sheet.getLastRow())
+      }
+      if (sheet.getMaxColumns() > sheet.getLastColumn()) {
+        sheet.deleteColumns(sheet.getLastColumn() + 1, sheet.getMaxColumns() - sheet.getLastColumn())
+      }
+    }
   };
   static triggers = {
     after: (functionName: string, ms: number) => {
