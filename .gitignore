@@ -1,0 +1,7 @@
+**/**
+
+!.gitignore
+!appsscript.json
+!main.d.ts
+!main.ts
+!package.json
