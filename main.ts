@@ -306,10 +306,10 @@ function checkConnection() {
     } catch (error) {
       switch ((error as HTTPExeption).status) {
         case HTTPExeptions.TooManyRequests:
-          Utils.log('WARN', "To many requests.")
+          Utils.log('UNSUCCESS', "To many requests.")
           break;
         case HTTPExeptions.Unauthorized:
-          Utils.log('WARN', "Unauthorized.")
+          Utils.log('UNSUCCESS', "Unauthorized.")
           break;
         default:
           throw error;
@@ -869,11 +869,11 @@ function getPcStats() {
 ///////////////////// utils /////////////////////
 class Utils {
   static log = (
-    type: "START" | "LOG" | "SUCCESS" | "WARN" | "ERROR",
+    type: "START" | "LOG" | "SUCCESS" | "WARN" | "ERROR" | "UNSUCCESS",
     message: string
   ) => {
-    if (type === "SUCCESS" || type === "ERROR") TABS--;
-    if (type === "WARN") console.warn(TAB.repeat(TABS) + `[${type}] ` + message);
+    if (type === "SUCCESS" || type === "ERROR" || type === "UNSUCCESS") TABS--;
+    if (type === "WARN" || type === "UNSUCCESS") console.warn(TAB.repeat(TABS) + `[${type}] ` + message);
     else if (type === "ERROR") console.error(TAB.repeat(TABS) + `[${type}] ` + message)
     else Logger.log(TAB.repeat(TABS) + `[${type}] ` + message);
     if (type === "START") TABS++;
