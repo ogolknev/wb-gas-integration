@@ -2,6 +2,6 @@
 
 !.gitignore
 !appsscript.json
-!main.d.ts
-!main.ts
+!types.d.ts
+!index.ts
 !package.json
