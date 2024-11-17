@@ -356,12 +356,33 @@ function hideSheets() {
   }
 }
 
-function getNms() {
+function getNms(fields = {
+  nmID: true,
+  imtID: false,
+  nmUUID: false,
+  subjectID: false,
+  vendorCode: false,
+  subjectName: false,
+  brand: false,
+  title: true,
+  photos: true,
+  video: false,
+  dimensions_length: false,
+  dimensions_width: false,
+  dimensions_height: false,
+  dimensions_isValid: false,
+  characteristics: false,
+  sizes: false,
+  tags: false,
+  createdAt: false,
+  updatedAt: false,
+}
+) {
   const toSheetData = (content: Nms.Response) => {
     Utils.log('LOG', `Formatting response to sheet data.`)
     let data: any[][] = [];
     content.cards.forEach((card) => {
-      data.push([
+      let line = [
         card.nmID,
         card.imtID,
         card.nmUUID,
@@ -381,7 +402,8 @@ function getNms() {
         JSON.stringify(card.tags),
         card.createdAt,
         card.updatedAt,
-      ]);
+      ];
+      data.push(Utils.data.pickFields(line, fields))
     });
     return data;
   };
@@ -394,7 +416,7 @@ function getNms() {
     };
     let response = API.getNms(payload, query);
     Utils.sheet.put(templates.nms.name, toSheetData(response.content), 0, 1, {
-      template: templates.nms.template,
+      template: Utils.data.pickFields(templates.nms.template, fields), clear: true
     });
     while (response.content.cursor.total >= limit) {
       payload = {
@@ -1077,6 +1099,22 @@ class Utils {
     prompt: (title: string, text: string, buttonSet: 'OK_CANCEL' | 'OK' | 'YES_NO' | 'YES_NO_CANCEL') => {
       const ui = SpreadsheetApp.getUi()
       return ui.prompt(title, text, ui.ButtonSet[buttonSet])
+    }
+  }
+  static data = {
+    pickFields(data: (string | number | boolean)[] | (string | number | boolean)[][], fields: { [key: string]: boolean }) {
+      let result = []
+      if (Array.isArray(data[0])) {
+        for (let line of data as (string | number | boolean)[][]) {
+          result.push(Utils.data.pickFields(line, fields))
+        }
+      }
+      else {
+        result = (data as (string | number | boolean)[]).filter((_, index) => {
+          return Object.values(fields)[index]
+        })
+      }
+      return result
     }
   }
 }
