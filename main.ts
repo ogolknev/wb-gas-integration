@@ -253,17 +253,26 @@ enum HTTPExeptions {
   TooManyRequests = 429,
 }
 class ScriptProps {
-  static props = PropertiesService.getScriptProperties();
-  static getDisposableTriggers() {
-    let disposableTriggers: string[] = JSON.parse(
-      this.props.getProperty("disposableTriggers") ?? "null"
-    );
-    if (!disposableTriggers) disposableTriggers = [];
-    return disposableTriggers;
+  static Prop = class <T> {
+    constructor(name: string, options?: { default?: T }) {
+      this.name = name
+      this.props = PropertiesService.getScriptProperties();
+    }
+    name: string
+    default?: T
+    props: GoogleAppsScript.Properties.Properties
+    get(): T {
+      let result = JSON.parse(this.props.getProperty(this.name) ?? "null");
+      if (this.default !== undefined && !result) result = this.default
+      return result
+    }
+    set(value: T) {
+      this.props.setProperty(this.name, JSON.stringify(value))
+    }
   }
-  static setDisposableTriggers(value: string[]) {
-    this.props.setProperty("disposableTriggers", JSON.stringify(value));
-  }
+  static disposableTriggers = new this.Prop<string[]>("disposableTriggers", { default: [] })
+
+
 }
 class ScriptCache {
   static props = CacheService.getScriptCache();
@@ -940,14 +949,14 @@ class Utils {
         .create();
       Utils.log("SUCCESS", `Creating trigger for ${functionName} completed.`);
       Utils.log("START", `Adding trigger to "disposableTriggers".`);
-      let disposableTriggers = ScriptProps.getDisposableTriggers();
+      let disposableTriggers = ScriptProps.disposableTriggers.get();
       disposableTriggers.push(trigger.getUniqueId());
-      ScriptProps.setDisposableTriggers(disposableTriggers);
+      ScriptProps.disposableTriggers.set(disposableTriggers);
       Utils.log("SUCCESS", `Adding trigger to "disposableTriggers" completed.`);
     },
     clear: (functionName?: string, disposable: boolean = true) => {
       Utils.log("START", `Clear disposable triggers.`);
-      let disposableTriggers = ScriptProps.getDisposableTriggers();
+      let disposableTriggers = ScriptProps.disposableTriggers.get();
       ScriptApp.getProjectTriggers().forEach((trigger) => {
         if (trigger.getUniqueId() in disposableTriggers || !disposable) {
           if (functionName && functionName === trigger.getHandlerFunction())
