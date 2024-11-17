@@ -245,13 +245,6 @@ const templates = {
     ]]
   }
 };
-enum HTTPExeptions {
-  BadRequest = 400,
-  Unauthorized = 401,
-  AccessDenied = 403,
-  UnprocessableEntity = 422,
-  TooManyRequests = 429,
-}
 class ScriptProps {
   static Prop = class <T> {
     constructor(name: string, options?: { default?: T }) {
@@ -282,7 +275,10 @@ function execTest() {
 }
 
 function checkConnection() {
+
   Utils.log("START", "checkConnection.")
+
+  const connection = []
   const categories = [
     "https://content-api.wildberries.ru/ping",
     "https://seller-analytics-api.wildberries.ru/ping",
@@ -297,25 +293,40 @@ function checkConnection() {
     "https://documents-api.wildberries.ru/ping",
     "https://common-api.wildberries.ru/ping"
   ]
+
   for (let category of categories) {
+
     Utils.log('LOG', `Checking connection to ${category}`)
+
     try {
       const response = API.request(category, { method: 'get' })
+      connection.push(category + " - " + response.content.Status)
+
       Utils.log('LOG', `Status "${response.content.Status}".`)
+
     } catch (error) {
       switch ((error as HTTPExeption).status) {
         case HTTPExeptions.TooManyRequests:
+          connection.push(category + " - " + "To many requests.")
+
           Utils.log('UNSUCCESS', "To many requests.")
+          
           break;
         case HTTPExeptions.Unauthorized:
+          connection.push(category + " - " + "Unauthorized.")
+
           Utils.log('UNSUCCESS', "Unauthorized.")
+          
           break;
         default:
           throw error;
       }
     }
   }
+  SpreadsheetApp.getUi().alert(connection.join('\n'))
+
   Utils.log("SUCCESS", "checkConnection.")
+  
 }
 function hideSheets() {
   for (let template in templates) {
@@ -865,7 +876,18 @@ function getPcStats() {
 
 }
 
-///////////////////// utils /////////////////////
+//============== simple triggers ==============
+
+function onOpen() {
+  const ui = SpreadsheetApp.getUi()
+  ui.createMenu('API')
+    .addItem('Проверить подключение', 'checkConnection')
+    .addToUi()
+}
+
+
+//============== utils ==============
+
 class Utils {
   static log = (
     type: "START" | "LOG" | "SUCCESS" | "WARN" | "ERROR" | "UNSUCCESS",
@@ -981,7 +1003,7 @@ class API {
     let access = ScriptProps.accessToken.get()
     if (!access) {
       let response = Utils.ui.prompt("Авторизация", "Необходимо ввести токен доступа!\nГде его взять https://dev.wildberries.ru/openapi/api-information#tag/Avtorizaciya", 'OK_CANCEL')
-      if (response.getSelectedButton() === GoogleAppsScript.Base.Button.OK) {
+      if (response.getSelectedButton() === SpreadsheetApp.getUi().Button.OK) {
         access = response.getResponseText()
         ScriptProps.accessToken.set(access)
       }
@@ -1143,4 +1165,11 @@ class HTTPExeption extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
   }
   status: number;
+}
+enum HTTPExeptions {
+  BadRequest = 400,
+  Unauthorized = 401,
+  AccessDenied = 403,
+  UnprocessableEntity = 422,
+  TooManyRequests = 429,
 }
