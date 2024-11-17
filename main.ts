@@ -271,8 +271,7 @@ class ScriptProps {
     }
   }
   static disposableTriggers = new this.Prop<string[]>("disposableTriggers", { default: [] })
-
-
+  static accessToken = new this.Prop<string>("accessToken")
 }
 class ScriptCache {
   static props = CacheService.getScriptCache();
@@ -970,12 +969,24 @@ class Utils {
       Utils.log("SUCCESS", `Clear disposable triggers completed.`);
     },
   };
+  static ui = {
+    prompt: (title: string, text: string, buttonSet: 'OK_CANCEL' | 'OK' | 'YES_NO' | 'YES_NO_CANCEL') => {
+      const ui = SpreadsheetApp.getUi()
+      return ui.prompt(title, text, ui.ButtonSet[buttonSet])
+    }
+  }
 }
 class API {
   private static access = (() => {
-    {
-      return "eyJhbGciOiJFUzI1NiIsImtpZCI6IjIwMjQwOTA0djEiLCJ0eXAiOiJKV1QifQ.eyJlbnQiOjEsImV4cCI6MTc0MjQ1NzE3NiwiaWQiOiIwMTkyMDZiMS1lYTY3LTc3NTgtOTZkMS1jYjM3MGFmNTE2MTAiLCJpaWQiOjk5NjcyODgyLCJvaWQiOjEwNjUzOSwicyI6MTA3Mzc0NTQwNiwic2lkIjoiNmEyMTI2NTctZDY2YS01YzdkLWI0ZGMtM2ExZTk5NTljMzI5IiwidCI6ZmFsc2UsInVpZCI6OTk2NzI4ODJ9.t3Z4UMkqr1Ag7EFcpIS2FdbUp2z90uTCI01fIoAXR679eje8-qQP9VjINS5cqkOabhy7PkcbULRiZdYEMiWd0A";
+    let access = ScriptProps.accessToken.get()
+    if (!access) {
+      let response = Utils.ui.prompt("Авторизация", "Необходимо ввести токен доступа!\nГде его взять https://dev.wildberries.ru/openapi/api-information#tag/Avtorizaciya", 'OK_CANCEL')
+      if (response.getSelectedButton() === GoogleAppsScript.Base.Button.OK) {
+        access = response.getResponseText()
+        ScriptProps.accessToken.set(access)
+      }
     }
+    return access
   })();
   static request = (
     url: string,
