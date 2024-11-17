@@ -243,6 +243,24 @@ const templates = {
       "Название товара",
       "ID артикула WB"
     ]]
+  },
+  pcStats: {
+    name: "API ☍ КТ статистика",
+    template: [[
+      "Артикул WB",
+      "Наименование карточки товара",
+      "Артикул продавца",
+      "Дата",
+      "Количество переходов в карточку товара",
+      "Положили в корзину, штук",
+      "Заказали товаров, шт",
+      "Заказали на сумму, руб.",
+      "Выкупили товаров, шт.",
+      "Выкупили на сумму, руб.",
+      "Процент выкупа, %",
+      "Конверсия в корзину, %",
+      "Конверсия в заказ, %"
+    ]]
   }
 };
 class ScriptProps {
@@ -262,16 +280,20 @@ class ScriptProps {
     set(value: T) {
       this.props.setProperty(this.name, JSON.stringify(value))
     }
+    del() {
+      this.props.deleteProperty(this.name)
+    }
   }
   static disposableTriggers = new this.Prop<string[]>("disposableTriggers", { default: [] })
   static accessToken = new this.Prop<string>("accessToken")
+  static nmIDsOffsetPcStats = new this.Prop<number>("nmIDsOffsetPcStats", { default: 0 })
 }
 class ScriptCache {
   static props = CacheService.getScriptCache();
 }
 
 function execTest() {
-  getAdStats({ begin: "2024-11-01", end: "2024-11-10" })
+  getPcStats({ begin: "2024-11-10", end: "2024-11-17" })
 }
 
 function checkConnection() {
@@ -310,13 +332,13 @@ function checkConnection() {
           connection.push(category + " - " + "To many requests.")
 
           Utils.log('UNSUCCESS', "To many requests.")
-          
+
           break;
         case HTTPExeptions.Unauthorized:
           connection.push(category + " - " + "Unauthorized.")
 
           Utils.log('UNSUCCESS', "Unauthorized.")
-          
+
           break;
         default:
           throw error;
@@ -326,7 +348,7 @@ function checkConnection() {
   SpreadsheetApp.getUi().alert(connection.join('\n'))
 
   Utils.log("SUCCESS", "checkConnection.")
-  
+
 }
 function hideSheets() {
   for (let template in templates) {
@@ -872,8 +894,68 @@ function getAdStats(datesOrInterval: string[] | { begin: string, end: string }, 
     }
   }
 }
-function getPcStats() {
-
+function getPcStats(period: { begin: string, end: string }, nmIDs?: number[]) {
+  if (!nmIDs) {
+    Utils.log('LOG', "Receiving nmIds from nms.")
+    const sheet = Utils.sheet.get(templates.nms.name)
+    nmIDs = sheet
+      .getRange(2, 1, sheet.getLastRow() - 1, 1)
+      .getValues()
+      .flat()
+  }
+  const toSheetData = (content: PcStats.Response) => {
+    Utils.log('LOG', `Formatting response to sheet data.`)
+    let data: any[][] = [];
+    content.data.forEach(row => {
+      row.history.forEach(day => {
+        data.push([
+          row.nmID,
+          row.imtName,
+          row.vendorCode,
+          day.dt,
+          day.openCardCount,
+          day.addToCartCount,
+          day.ordersCount,
+          day.ordersSumRub,
+          day.buyoutsCount,
+          day.buyoutsSumRub,
+          day.buyoutPercent,
+          day.addToCartConversion,
+          day.cartToOrderConversion
+        ])
+      })
+    })
+    return data;
+  };
+  try {
+    Utils.log('START', "getPcStats.")
+    let offset = ScriptProps.nmIDsOffsetPcStats.get()
+    let payload: PcStats.Payload = { nmIDs: nmIDs.slice(offset, offset + 20), period }
+    offset += 20
+    let response = API.getPcStats(payload)
+    Utils.sheet.put(templates.pcStats.name, toSheetData(response.content), 0, 1, {
+      template: templates.pcStats.template,
+    });
+    ScriptProps.nmIDsOffsetPcStats.set(offset)
+    while (nmIDs.length > offset) {
+      payload = { nmIDs: nmIDs.slice(offset, offset + 20), period }
+      offset += 20
+      response = API.getPcStats(payload)
+      Utils.sheet.put(templates.pcStats.name, toSheetData(response.content), 0, 1, {
+        template: templates.pcStats.template,
+      });
+      ScriptProps.nmIDsOffsetPcStats.set(offset)
+    }
+    ScriptProps.nmIDsOffsetPcStats.del()
+    Utils.log('SUCCESS', "getPcStats.")
+  } catch (error: unknown) {
+    switch ((error as HTTPExeption).status) {
+      case HTTPExeptions.TooManyRequests:
+        Utils.triggers.after("getPcStats", 1000 * 60);
+      default:
+        throw error;
+    }
+  }
 }
 
 //============== simple triggers ==============
