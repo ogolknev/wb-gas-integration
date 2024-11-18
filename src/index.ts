@@ -465,7 +465,7 @@ function getOrders(
         order.gNumber,
         order.srid,
       ];
-      data.push(Utils.data.pickFields(data, fields))
+      data.push(Utils.data.pickFields(line, fields))
     });
     return data;
   };
