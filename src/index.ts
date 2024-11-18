@@ -1,8 +1,11 @@
 //============== state ==============
 
-let TABS = 0;
-const TAB = " ✦ ";
-const templates = {
+const MODE: 'dev' | 'test' | 'prod' = 'test'
+const TAB = {
+  count: 0,
+  str: " ✦ "
+}
+const TEMPLATES = {
   nms: {
     name: "API ☍ Артикулы",
     template: [
@@ -369,8 +372,8 @@ function getNms(
       settings: { filter: { withPhoto: -1 }, cursor: { limit } },
     };
     let response = API.getNms(payload, query);
-    Utils.sheet.put(templates.nms.name, toSheetData(response.content), 0, 1, {
-      template: Utils.data.pickFields(templates.nms.template, fields), clear: true
+    Utils.sheet.put(TEMPLATES.nms.name, toSheetData(response.content), 0, 1, {
+      template: Utils.data.pickFields(TEMPLATES.nms.template, fields), clear: true
     });
     while (response.content.cursor.total >= limit) {
       payload = {
@@ -384,11 +387,11 @@ function getNms(
         },
       };
       response = API.getNms(payload, query);
-      Utils.sheet.put(templates.nms.name, toSheetData(response.content), 0, 1, {
-        template: Utils.data.pickFields(templates.nms.template, fields), clear: true
+      Utils.sheet.put(TEMPLATES.nms.name, toSheetData(response.content), 0, 1, {
+        template: Utils.data.pickFields(TEMPLATES.nms.template, fields), clear: true
       });
     }
-    Utils.sheet.removeEmptyCells(templates.nms.name)
+    Utils.sheet.removeEmptyCells(TEMPLATES.nms.name)
     Utils.log('SUCCESS', "getNms.")
   } catch (error: unknown) {
     switch ((error as HTTPExeption).status) {
@@ -474,15 +477,15 @@ function getOrders(
     let query: Orders.Query = { dateFrom, flag };
     let response = API.getOrders(query);
     Utils.sheet.put(
-      templates.orders.name,
+      TEMPLATES.orders.name,
       toSheetData(response.content),
       0,
       1,
       {
-        template: Utils.data.pickFields(templates.orders.template, fields),
+        template: Utils.data.pickFields(TEMPLATES.orders.template, fields),
       }
     );
-    Utils.sheet.removeEmptyCells(templates.orders.name)
+    Utils.sheet.removeEmptyCells(TEMPLATES.orders.name)
     Utils.log('SUCCESS', "getOrders.")
   } catch (error: unknown) {
     switch ((error as HTTPExeption).status) {
@@ -570,8 +573,8 @@ function getSales(
     Utils.log('START', 'getSales.')
     let query: Sales.Query = { dateFrom, flag };
     let response = API.getSales(query);
-    Utils.sheet.put(templates.sales.name, toSheetData(response.content), 0, 1, {
-      template: Utils.data.pickFields(templates.sales.template, fields),
+    Utils.sheet.put(TEMPLATES.sales.name, toSheetData(response.content), 0, 1, {
+      template: Utils.data.pickFields(TEMPLATES.sales.template, fields),
     });
     Utils.log('SUCCESS', 'getSales.')
   } catch (error) {
@@ -640,11 +643,11 @@ function getStocks(
     let query: Stocks.Query = { dateFrom };
     let response = API.getStocks(query);
     Utils.sheet.put(
-      templates.stocks.name,
+      TEMPLATES.stocks.name,
       toSheetData(response.content),
       0, 1,
       {
-        template: Utils.data.pickFields(templates.stocks.template, fields)
+        template: Utils.data.pickFields(TEMPLATES.stocks.template, fields)
       }
     );
     Utils.log('SUCCESS', 'getStocks.')
@@ -700,24 +703,24 @@ function getProducts(
     Utils.log('START', 'getProducts.')
     let response = API.getProducts(query);
     Utils.sheet.put(
-      templates.products.name,
+      TEMPLATES.products.name,
       toSheetData(response.content),
       0,
       1,
       {
-        template: Utils.data.pickFields(templates.products.template, fields)
+        template: Utils.data.pickFields(TEMPLATES.products.template, fields)
       }
     );
     while (response.content.data.listGoods.length >= 1000) {
       query.offset += 1000;
       let response = API.getProducts(query);
       Utils.sheet.put(
-        templates.products.name,
+        TEMPLATES.products.name,
         toSheetData(response.content),
         0,
         1,
         {
-          template: Utils.data.pickFields(templates.products.template, fields)
+          template: Utils.data.pickFields(TEMPLATES.products.template, fields)
         }
       );
     }
@@ -759,11 +762,11 @@ function getAdLists(fields = {
   try {
     let response = API.getAdLists();
     Utils.sheet.put(
-      templates.adLists.name,
+      TEMPLATES.adLists.name,
       toSheetData(response.content),
       0,
       1,
-      { clear: true, template: Utils.data.pickFields(templates.adLists.template, fields) }
+      { clear: true, template: Utils.data.pickFields(TEMPLATES.adLists.template, fields) }
     );
   } catch (error) {
     switch ((error as HTTPExeption).status) {
@@ -804,7 +807,7 @@ function getAdInfoType8(
 ) {
   if (!adIds) {
     Utils.log('LOG', "Receiving adIds from adLists.")
-    const sheet = Utils.sheet.get(templates.adLists.name);
+    const sheet = Utils.sheet.get(TEMPLATES.adLists.name);
     let adIdsIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "ID кампании") + 1
     adIds = sheet
       .getRange(2, adIdsIndex, sheet.getLastRow() - 1, 1)
@@ -862,10 +865,10 @@ function getAdInfoType8(
       let payload: AdInfo.Payload = adIds
       let response = API.getAdInfo(payload, query)
       Utils.sheet.put(
-        templates.adInfoType8.name, toSheetData((response.content as AdInfo.Response.Type8)),
+        TEMPLATES.adInfoType8.name, toSheetData((response.content as AdInfo.Response.Type8)),
         -1, 1, {
         clear: true,
-        template: Utils.data.pickFields(templates.adInfoType8.template, fields)
+        template: Utils.data.pickFields(TEMPLATES.adInfoType8.template, fields)
       })
     } else {
       Utils.log('WARN', 'No relevant adIds.')
@@ -906,7 +909,7 @@ function getAdInfoType9(
 ) {
   if (!adIds) {
     Utils.log('LOG', "Receiving adIds from adLists.")
-    const sheet = Utils.sheet.get(templates.adLists.name);
+    const sheet = Utils.sheet.get(TEMPLATES.adLists.name);
     let adIdsIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "ID кампании") + 1
     adIds = sheet
       .getRange(2, adIdsIndex, sheet.getLastRow() - 1, 1)
@@ -962,10 +965,10 @@ function getAdInfoType9(
       let payload: AdInfo.Payload = adIds
       let response = API.getAdInfo(payload, query)
       Utils.sheet.put(
-        templates.adInfoType9.name, toSheetData((response.content as AdInfo.Response.Type9)),
+        TEMPLATES.adInfoType9.name, toSheetData((response.content as AdInfo.Response.Type9)),
         -1, 1, {
         clear: true,
-        template: Utils.data.pickFields(templates.adInfoType9.template, fields)
+        template: Utils.data.pickFields(TEMPLATES.adInfoType9.template, fields)
       })
     } else {
       Utils.log('WARN', 'No relevant adIds.')
@@ -1011,7 +1014,7 @@ function getAdInfoDeprecated(
 ) {
   if (!adIds) {
     Utils.log('LOG', "Receiving adIds from adLists.")
-    const sheet = Utils.sheet.get(templates.adLists.name);
+    const sheet = Utils.sheet.get(TEMPLATES.adLists.name);
     let adIdsIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "ID кампании") + 1
     adIds = sheet
       .getRange(2, adIdsIndex, sheet.getLastRow() - 1, 1)
@@ -1075,10 +1078,10 @@ function getAdInfoDeprecated(
       let payload: AdInfo.Payload = adIds
       let response = API.getAdInfo(payload, query)
       Utils.sheet.put(
-        templates.adInfoDeprecated.name, toSheetData((response.content as AdInfo.Response.Deprecated)),
+        TEMPLATES.adInfoDeprecated.name, toSheetData((response.content as AdInfo.Response.Deprecated)),
         -1, 1, {
         clear: true,
-        template: Utils.data.pickFields(templates.adInfoDeprecated.template, fields)
+        template: Utils.data.pickFields(TEMPLATES.adInfoDeprecated.template, fields)
       })
 
     } else {
@@ -1157,7 +1160,7 @@ function getAdStats(
 ) {
   if (!adIds) {
     Utils.log('LOG', "Receiving adIds from adLists.")
-    const sheet = Utils.sheet.get(templates.adLists.name);
+    const sheet = Utils.sheet.get(TEMPLATES.adLists.name);
     let adIdsIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "ID кампании") + 1
     adIds = sheet
       .getRange(2, adIdsIndex, sheet.getLastRow() - 1, 1)
@@ -1224,10 +1227,10 @@ function getAdStats(
     const response = API.getAdStats(payload)
     if (response.content) {
       Utils.sheet.put(
-        templates.adStats.name,
+        TEMPLATES.adStats.name,
         toSheetData(response.content),
         0, 1,
-        { template: Utils.data.pickFields(templates.adStats.template, fields) }
+        { template: Utils.data.pickFields(TEMPLATES.adStats.template, fields) }
       )
     }
     Utils.log('SUCCESS', 'getAdStats.')
@@ -1262,7 +1265,7 @@ function getPcStats(
 ) {
   if (!nmIDs) {
     Utils.log('LOG', "Receiving nmIds from nms.")
-    const sheet = Utils.sheet.get(templates.nms.name)
+    const sheet = Utils.sheet.get(TEMPLATES.nms.name)
     nmIDs = sheet
       .getRange(2, 1, sheet.getLastRow() - 1, 1)
       .getValues()
@@ -1309,16 +1312,16 @@ function getPcStats(
     let payload: PcStats.Payload = { nmIDs: nmIDs.slice(offset, offset + 20), period }
     offset += 20
     let response = API.getPcStats(payload)
-    Utils.sheet.put(templates.pcStats.name, toSheetData(response.content), 0, 1, {
-      template: Utils.data.pickFields(templates.pcStats.template, fields),
+    Utils.sheet.put(TEMPLATES.pcStats.name, toSheetData(response.content), 0, 1, {
+      template: Utils.data.pickFields(TEMPLATES.pcStats.template, fields),
     });
     ScriptProps.nmIDsOffsetPcStats.set(offset)
     while (nmIDs.length > offset) {
       payload = { nmIDs: nmIDs.slice(offset, offset + 20), period }
       offset += 20
       response = API.getPcStats(payload)
-      Utils.sheet.put(templates.pcStats.name, toSheetData(response.content), 0, 1, {
-        template: Utils.data.pickFields(templates.pcStats.template, fields)
+      Utils.sheet.put(TEMPLATES.pcStats.name, toSheetData(response.content), 0, 1, {
+        template: Utils.data.pickFields(TEMPLATES.pcStats.template, fields)
       });
       ScriptProps.nmIDsOffsetPcStats.set(offset)
     }
@@ -1354,11 +1357,11 @@ class Utils {
     type: "START" | "LOG" | "SUCCESS" | "WARN" | "ERROR" | "UNSUCCESS",
     message: string
   ) => {
-    if (type === "SUCCESS" || type === "ERROR" || type === "UNSUCCESS") TABS--;
-    if (type === "WARN" || type === "UNSUCCESS") console.warn(TAB.repeat(TABS) + `[${type}] ` + message);
-    else if (type === "ERROR") console.error(TAB.repeat(TABS) + `[${type}] ` + message)
-    else Logger.log(TAB.repeat(TABS) + `[${type}] ` + message);
-    if (type === "START") TABS++;
+    if (type === "SUCCESS" || type === "ERROR" || type === "UNSUCCESS") TAB.count--;
+    if (type === "WARN" || type === "UNSUCCESS") console.warn(TAB.str.repeat(TAB.count) + `[${type}] ` + message);
+    else if (type === "ERROR") console.error(TAB.str.repeat(TAB.count) + `[${type}] ` + message)
+    else Logger.log(TAB.str.repeat(TAB.count) + `[${type}] ` + message);
+    if (type === "START") TAB.count++;
   };
   static date = {
     toString: (date: Date, div: "." | "-" | "/" = "-") => {
@@ -1717,7 +1720,7 @@ function checkConnection() {
 
 }
 function hideSheets() {
-  for (let template in templates) {
-    Utils.sheet.get(templates[template].name).hideSheet()
+  for (let template in TEMPLATES) {
+    Utils.sheet.get(TEMPLATES[template].name).hideSheet()
   }
 }
