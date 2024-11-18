@@ -1,6 +1,6 @@
 //============== state ==============
 
-const MODE: 'dev' | 'test' | 'prod' = 'test'
+let MODE: 'dev' | 'test' | 'prod' = 'test'
 const TAB = {
   count: 0,
   str: " ✦ "
@@ -306,17 +306,31 @@ class ScriptCache {
 //============== tests ==============
 
 function execTest() {
-  getNms()
-  getOrders()
-  getSales()
-  getStocks()
-  getProducts()
-  getAdLists()
-  getAdInfoType8()
-  getAdInfoType9()
-  getAdInfoDeprecated()
-  getAdStats()
-  getPcStats()
+  MODE = 'test'
+  const result = []
+  if (getNms() === 0) result.push('OK - getNms')
+    else result.push('FAILED - getNms')
+  if (getOrders() === 0) result.push('OK - getOrders')
+    else result.push('FAILED - getOrders')
+  if (getSales() === 0) result.push('OK - getSales')
+    else result.push('FAILED - getSales')
+  if (getStocks() === 0) result.push('OK - getStocks')
+    else result.push('FAILED - getStocks')
+  if (getProducts() === 0) result.push('OK - getProducts')
+    else result.push('FAILED - getProducts')
+  if (getAdLists() === 0) result.push('OK - getAdLists')
+    else result.push('FAILED - getAdLists')
+  if (getAdInfoType8() === 0) result.push('OK - getAdInfoType8')
+    else result.push('FAILED - getAdInfoType8')
+  if (getAdInfoType9() === 0) result.push('OK - getAdInfoType9')
+    else result.push('FAILED - getAdInfoType9')
+  if (getAdInfoDeprecated() === 0) result.push('OK - getAdInfoDeprecated')
+    else result.push('FAILED - getAdInfoDeprecated')
+  if (getAdStats() === 0) result.push('OK - getAdStats')
+    else result.push('FAILED - getAdStats')
+  if (getPcStats() === 0) result.push('OK - getPcStats')
+    else result.push('FAILED - getPcStats')
+  Utils.ui.alert('Проверка работы методов', result.join('\n'), 'OK')
 }
 
 
@@ -403,6 +417,7 @@ function getNms(
     }
     Utils.sheet.removeEmptyCells(TEMPLATES.nms.name)
     Utils.log('SUCCESS', "getNms.")
+    return 0
   } catch (error: unknown) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -497,6 +512,7 @@ function getOrders(
     );
     Utils.sheet.removeEmptyCells(TEMPLATES.orders.name)
     Utils.log('SUCCESS', "getOrders.")
+    return 0
   } catch (error: unknown) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -588,6 +604,7 @@ function getSales(
     });
     Utils.sheet.removeEmptyCells(TEMPLATES.sales.name)
     Utils.log('SUCCESS', 'getSales.')
+    return 0
   } catch (error) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -663,6 +680,7 @@ function getStocks(
     );
     Utils.sheet.removeEmptyCells(TEMPLATES.stocks.name)
     Utils.log('SUCCESS', 'getStocks.')
+    return 0
   } catch (error) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -738,6 +756,7 @@ function getProducts(
     }
     Utils.sheet.removeEmptyCells(TEMPLATES.products.name)
     Utils.log('SUCCESS', 'getProducts.')
+    return 0
   } catch (error) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -784,6 +803,7 @@ function getAdLists(fields = {
     );
     Utils.sheet.removeEmptyCells(TEMPLATES.adLists.name)
     Utils.log('SUCCESS', 'getAdLists.')
+    return 0
   } catch (error) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -891,6 +911,7 @@ function getAdInfoType8(
     }
     Utils.sheet.removeEmptyCells(TEMPLATES.adInfoType8.name)
     Utils.log('SUCCESS', 'getAdInfoType8.')
+    return 0
   } catch (error) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -992,6 +1013,7 @@ function getAdInfoType9(
     }
     Utils.sheet.removeEmptyCells(TEMPLATES.adInfoType9.name)
     Utils.log('SUCCESS', 'getAdInfoType9.')
+    return 0
   } catch (error) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -1107,6 +1129,7 @@ function getAdInfoDeprecated(
     }
     Utils.sheet.removeEmptyCells(TEMPLATES.adInfoDeprecated.name)
     Utils.log('SUCCESS', 'getAdInfoDeprecated.')
+    return 0
   } catch (error) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -1136,7 +1159,7 @@ function getAdStats(
     name: boolean,
     nmId: boolean
   },
-): void
+): number
 function getAdStats(
   interval: { begin: string, end: string },
   adIds?: number[],
@@ -1156,7 +1179,7 @@ function getAdStats(
     name: boolean,
     nmId: boolean
   },
-): void
+): number
 function getAdStats(
   datesOrInterval: string[] | { begin: string, end: string },
   adIds?: number[],
@@ -1196,7 +1219,6 @@ function getAdStats(
   }
   const toSheetData = (content: AdStats.Response.WithDate | AdStats.Response.WithInterval) => {
     Utils.log('LOG', `Formatting response to sheet data.`)
-    let line: (string | number | boolean)[]
     const data: any[][] = []
     content.forEach((ad: AdStats.Response.WithDate[number] | AdStats.Response.WithInterval[number]) => {
       ad.days.forEach(day => {
@@ -1254,6 +1276,7 @@ function getAdStats(
     }
     Utils.sheet.removeEmptyCells(TEMPLATES.adStats.name)
     Utils.log('SUCCESS', 'getAdStats.')
+    return 0
   } catch (error) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -1348,6 +1371,7 @@ function getPcStats(
     ScriptProps.nmIDsOffsetPcStats.del()
     Utils.sheet.removeEmptyCells(TEMPLATES.pcStats.name)
     Utils.log('SUCCESS', "getPcStats.")
+    return 0
   } catch (error: unknown) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -1365,7 +1389,12 @@ function onOpen() {
   const ui = SpreadsheetApp.getUi()
   ui.createMenu('API')
     .addItem('Проверить подключение', 'checkConnection')
+    .addSubMenu(
+      ui.createMenu("[dev]")
+        .addItem('Проверить работу методов', 'execTest')      
+    )
     .addSeparator()
+    .addItem('Скрыть листы с данными', 'hideSheets')
     .addItem('Изменить ключ доступа', 'getAccess')
     .addToUi()
 }
@@ -1492,6 +1521,10 @@ class Utils {
     prompt: (title: string, text: string, buttonSet: 'OK_CANCEL' | 'OK' | 'YES_NO' | 'YES_NO_CANCEL') => {
       const ui = SpreadsheetApp.getUi()
       return ui.prompt(title, text, ui.ButtonSet[buttonSet])
+    },
+    alert: (title: string, text: string, buttonSet: 'OK_CANCEL' | 'OK' | 'YES_NO' | 'YES_NO_CANCEL') => {
+      const ui = SpreadsheetApp.getUi()
+      ui.alert(title, text, ui.ButtonSet[buttonSet])
     }
   }
   static data = {
