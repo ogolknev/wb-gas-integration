@@ -317,7 +317,7 @@ function getNms(
     subjectID: false,
     vendorCode: false,
     subjectName: false,
-    brand: false,
+    brand: true,
     title: true,
     photos: true,
     video: false,
@@ -403,15 +403,15 @@ function getOrders(
   dateFrom: string = Utils.date.toString(new Date()),
   flag: 1 | 0 = 1,
   fields = {
-    date: false,
+    date: true,
     lastChangeDate: false,
     warehouseName: false,
     countryName: false,
     oblastOkrugName: false,
     regionName: false,
     supplierArticle: false,
-    nmId: false,
-    barcode: false,
+    nmId: true,
+    barcode: true,
     category: false,
     subject: false,
     brand: false,
@@ -419,17 +419,17 @@ function getOrders(
     incomeID: false,
     isSupply: false,
     isRealization: false,
-    totalPrice: false,
-    discountPercent: false,
-    spp: false,
-    finishedPrice: false,
-    priceWithDisc: false,
-    isCancel: false,
+    totalPrice: true,
+    discountPercent: true,
+    spp: true,
+    finishedPrice: true,
+    priceWithDisc: true,
+    isCancel: true,
     cancelDate: false,
-    orderType: false,
-    sticker: false,
-    gNumber: false,
-    srid: false,
+    orderType: true,
+    sticker: true,
+    gNumber: true,
+    srid: true,
   },
 ) {
   const toSheetData = (content: Orders.Response) => {
@@ -482,6 +482,7 @@ function getOrders(
         template: Utils.data.pickFields(templates.orders.template, fields),
       }
     );
+    Utils.sheet.removeEmptyCells(templates.orders.name)
     Utils.log('SUCCESS', "getOrders.")
   } catch (error: unknown) {
     switch ((error as HTTPExeption).status) {
@@ -498,21 +499,21 @@ function getSales(
   flag: 1 | 0 = 1,
   fields = {
     date: true,
-    lastChangeDate: true,
-    warehouseName: true,
-    countryName: true,
-    oblastOkrugName: true,
-    regionName: true,
-    supplierArticle: true,
+    lastChangeDate: false,
+    warehouseName: false,
+    countryName: false,
+    oblastOkrugName: false,
+    regionName: false,
+    supplierArticle: false,
     nmId: true,
     barcode: true,
-    category: true,
-    subject: true,
-    brand: true,
-    techSize: true,
-    incomeID: true,
-    isSupply: true,
-    isRealization: true,
+    category: false,
+    subject: false,
+    brand: false,
+    techSize: false,
+    incomeID: false,
+    isSupply: false,
+    isRealization: false,
     totalPrice: true,
     discountPercent: true,
     spp: true,
@@ -524,7 +525,7 @@ function getSales(
     orderType: true,
     sticker: true,
     gNumber: true,
-    srid: true,
+    srid: false,
   },
 ) {
   const toSheetData = (content: Sales.Response) => {
@@ -586,15 +587,15 @@ function getSales(
 function getStocks(
   dateFrom: string = Utils.date.toString(new Date()),
   fields = {
-    lastChangeDate: false,
-    warehouseName: false,
+    lastChangeDate: true,
+    warehouseName: true,
     supplierArticle: false,
-    nmId: false,
-    barcode: false,
-    quantity: false,
-    inWayToClient: false,
-    inWayFromClient: false,
-    quantityFull: false,
+    nmId: true,
+    barcode: true,
+    quantity: true,
+    inWayToClient: true,
+    inWayFromClient: true,
+    quantityFull: true,
     category: false,
     subject: false,
     brand: false,
@@ -603,7 +604,7 @@ function getStocks(
     Discount: false,
     isSupply: false,
     isRealization: false,
-    SCCode: false,
+    SCCode: true,
   },
 ) {
   const toSheetData = (content: Stocks.Response) => {
@@ -663,14 +664,14 @@ function getProducts(
     offset: 0,
   },
   fields = {
-    nmID: false,
+    nmID: true,
     vendorCode: false,
     sizeID: false,
-    price: false,
-    discountedPrice: false,
-    techSizeName: false,
+    price: true,
+    discountedPrice: true,
+    techSizeName: true,
     currencyIsoCode4217: false,
-    discount: false,
+    discount: true,
     editableSizePrice: false,
   },
 ) {
@@ -786,9 +787,9 @@ function getAdInfoType8(
     subject_name: false,
     sets: false,
     menus: false,
-    carousel: false,
-    recom: false,
-    booster: false,
+    carousel: true,
+    recom: true,
+    booster: true,
     nm: true,
     nm_cpm: true,
     nms: false,
@@ -798,7 +799,7 @@ function getAdInfoType8(
     advertId: true,
     status: true,
     type: false,
-    paymentType: false
+    paymentType: true
   },
 ) {
   if (!adIds) {
@@ -899,7 +900,7 @@ function getAdInfoType9(
     dailyBudget: false,
     advertId: true,
     status: true,
-    paymentType: false,
+    paymentType: true,
     type: false
   },
 ) {
@@ -1005,7 +1006,7 @@ function getAdInfoDeprecated(
     status: true,
     type: true,
     paymentType: false,
-    searchPluseState: false
+    searchPluseState: true
   },
 ) {
   if (!adIds) {
@@ -1150,7 +1151,7 @@ function getAdStats(
     cr: true,
     shks: true,
     sum_price: true,
-    name: true,
+    name: false,
     nmId: true
   },
 ) {
@@ -1244,19 +1245,19 @@ function getPcStats(
   period: { begin: string, end: string },
   nmIDs?: number[],
   fields = {
-    nmID: false,
+    nmID: true,
     imtName: false,
     vendorCode: false,
-    dt: false,
-    openCardCount: false,
-    addToCartCount: false,
-    ordersCount: false,
-    ordersSumRub: false,
-    buyoutsCount: false,
-    buyoutsSumRub: false,
-    buyoutPercent: false,
-    addToCartConversion: false,
-    cartToOrderConversion: false
+    dt: true,
+    openCardCount: true,
+    addToCartCount: true,
+    ordersCount: true,
+    ordersSumRub: true,
+    buyoutsCount: true,
+    buyoutsSumRub: true,
+    buyoutPercent: true,
+    addToCartConversion: true,
+    cartToOrderConversion: true
   },
 ) {
   if (!nmIDs) {
