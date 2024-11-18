@@ -306,7 +306,17 @@ class ScriptCache {
 //============== tests ==============
 
 function execTest() {
-  getPcStats({ begin: "2024-11-10", end: "2024-11-17" })
+  getNms()
+  getOrders()
+  getSales()
+  getStocks()
+  getProducts()
+  getAdLists()
+  getAdInfoType8()
+  getAdInfoType9()
+  getAdInfoDeprecated()
+  getAdStats()
+  getPcStats()
 }
 
 
@@ -607,7 +617,7 @@ function getStocks(
     Discount: false,
     isSupply: false,
     isRealization: false,
-    SCCode: true,
+    SCCode: false,
   },
 ) {
   const toSheetData = (content: Stocks.Response) => {
@@ -1099,7 +1109,7 @@ function getAdInfoDeprecated(
   }
 }
 function getAdStats(
-  dates: string[],
+  dates?: string[],
   adIds?: number[],
   fields?: {
     advertId: boolean,
@@ -1405,6 +1415,7 @@ class Utils {
       }
     ) => {
       Utils.log("START", `Transfering data to a sheet "${sheetName}".`);
+      if (MODE === 'test') return null
       const sheet = Utils.sheet.get(sheetName);
       if (options) {
         if (options.clear) {
@@ -1425,6 +1436,7 @@ class Utils {
       );
     },
     removeEmptyCells: (sheetName: string) => {
+      if (MODE === 'test') return null
       const sheet = Utils.sheet.get(sheetName)
 
       if (sheet.getMaxRows() > sheet.getLastRow()) {
