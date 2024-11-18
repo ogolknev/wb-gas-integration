@@ -1,3 +1,5 @@
+//============== state ==============
+
 let TABS = 0;
 const TAB = " ✦ ";
 const templates = {
@@ -149,55 +151,55 @@ const templates = {
       ],
     ],
   },
-  adInfo8: {
+  adInfoType8: {
     name: "API ☍ РК инфо. Авто",
     template: [
       [
         "Дата завершения кампании",
-        "Время создания кампании",
-        "Время последнего изменения кампании",
+        "Дата создания кампании",
+        "Дата последнего изменения кампании",
         "Дата последнего запуска кампании",
+        "ID предмета",
+        "Название предмета",
+        "Внутренняя (системная) сущность (пол + предмет)",
+        "Меню",
+        "Карточка товара",
+        "Рекомендации на главной",
+        "Аукцион",
+        "Артикул WB",
+        "Ставка",
+        "Артикулы WB",
+        "Ставка, указанная при создании кампании. Поле актуально только для кампаний, созданных через API.",
         "Название кампании",
-        "Дневной бюджет",
+        "Ежедневный бюджет. Не используется",
         "ID кампании",
         "Статус кампании",
         "Тип кампании",
-        "Модель оплаты",
-        "Авто. ID предмета",
-        "Авто. Название предмета",
-        "Авто. Внутренняя (системная) сущность (пол + предмет)",
-        "Авто. Меню",
-        "Авто. Зоны показов. Карточка товара",
-        "Авто. Зоны показов. Рекомендации на главной",
-        "Авто. Зоны показов. Аукцион",
-        "Авто. Массив номенклатур кампании",
-        "Авто. Артикул WB",
-        "Авто. Ставка",
-        "Авто. Ставка, указанная при создании кампании."
+        "Модель оплаты"
       ],
     ],
   },
-  adInfo9: {
+  adInfoType9: {
     name: "API ☍ РК инфо. Аукцион",
     template: [
       [
         "Дата завершения кампании",
-        "Время создания кампании",
-        "Время последнего изменения кампании",
+        "Дата создания кампании",
+        "Дата последнего изменения кампании",
         "Дата последнего запуска кампании",
+        "Активность фиксированных фраз",
         "Название кампании",
-        "Дневной бюджет",
+        "ID предмета",
+        "Название предмета",
+        "Меню",
+        "Артикул WB",
+        "Ставка в поиске",
+        "Ставка в Каталоге, при наличии",
+        "Ежедневный бюджет. Не используется",
         "ID кампании",
         "Статус кампании",
-        "Тип кампании",
         "Модель оплаты",
-        "Аукцион. ID предмета",
-        "Аукцион. Название предмета",
-        "Аукцион. Меню",
-        "Аукцион. Массив номенклатур кампании",
-        "Аукцион. Ставка в поиске",
-        "Аукцион. Ставка в Каталоге",
-        "Аукцион. Активность фиксированных фраз",
+        "Тип кампании",
       ],
     ],
   },
@@ -210,18 +212,23 @@ const templates = {
         "Время последнего изменения кампании",
         "Дата последнего запуска кампании",
         "Название кампании",
+        "Название предметной группы",
+        "Флаг активности предметной группы",
+        "Интервалы часов показа кампании",
+        "Текущая ставка",
+        "ID меню, где размещается кампания",
+        "ID предметной группы",
+        "ID сочетания предмета и пола",
+        "Сочетание предмета и пола",
+        "Название меню, где размещается кампания",
+        "Числовой ID номенклатуры WB",
+        "Состояние номенклатуры",
         "Дневной бюджет",
         "ID кампании",
         "Статус кампании",
         "Тип кампании",
         "Модель оплаты",
-        "Устаревшие типы. Название предметной группы",
-        "Устаревшие типы. ID предметной группы",
-        "Устаревшие типы. Флаг активности предметной группы",
-        "Устаревшие типы. Интервалы часов показа кампании",
-        "Устаревшие типы. Текущая ставка",
-        "Устаревшие типы. Массив номенклатур кампании",
-        "Устаревшие типы. Активность фиксированных фраз",
+        "searchPluseState",
       ],
     ],
   },
@@ -292,91 +299,38 @@ class ScriptCache {
   static props = CacheService.getScriptCache();
 }
 
+
+//============== tests ==============
+
 function execTest() {
   getPcStats({ begin: "2024-11-10", end: "2024-11-17" })
 }
 
-function checkConnection() {
 
-  Utils.log("START", "checkConnection.")
+//============== actions ==============
 
-  const connection = []
-  const categories = [
-    "https://content-api.wildberries.ru/ping",
-    "https://seller-analytics-api.wildberries.ru/ping",
-    "https://discounts-prices-api.wildberries.ru/ping",
-    "https://marketplace-api.wildberries.ru/ping",
-    "https://statistics-api.wildberries.ru/ping",
-    "https://advert-api.wildberries.ru/ping",
-    "https://feedbacks-api.wildberries.ru/ping",
-    "https://buyer-chat-api.wildberries.ru/ping",
-    "https://supplies-api.wildberries.ru/ping",
-    "https://returns-api.wildberries.ru/ping",
-    "https://documents-api.wildberries.ru/ping",
-    "https://common-api.wildberries.ru/ping"
-  ]
-
-  for (let category of categories) {
-
-    Utils.log('LOG', `Checking connection to ${category}`)
-
-    try {
-      const response = API.request(category, { method: 'get' })
-      connection.push(category + " - " + response.content.Status)
-
-      Utils.log('LOG', `Status "${response.content.Status}".`)
-
-    } catch (error) {
-      switch ((error as HTTPExeption).status) {
-        case HTTPExeptions.TooManyRequests:
-          connection.push(category + " - " + "To many requests.")
-
-          Utils.log('UNSUCCESS', "To many requests.")
-
-          break;
-        case HTTPExeptions.Unauthorized:
-          connection.push(category + " - " + "Unauthorized.")
-
-          Utils.log('UNSUCCESS', "Unauthorized.")
-
-          break;
-        default:
-          throw error;
-      }
-    }
+function getNms(
+  fields = {
+    nmID: true,
+    imtID: false,
+    nmUUID: false,
+    subjectID: false,
+    vendorCode: false,
+    subjectName: false,
+    brand: false,
+    title: true,
+    photos: true,
+    video: false,
+    dimensions_length: false,
+    dimensions_width: false,
+    dimensions_height: false,
+    dimensions_isValid: false,
+    characteristics: false,
+    sizes: false,
+    tags: false,
+    createdAt: false,
+    updatedAt: false,
   }
-  SpreadsheetApp.getUi().alert(connection.join('\n'))
-
-  Utils.log("SUCCESS", "checkConnection.")
-
-}
-function hideSheets() {
-  for (let template in templates) {
-    Utils.sheet.get(templates[template].name).hideSheet()
-  }
-}
-
-function getNms(fields = {
-  nmID: true,
-  imtID: false,
-  nmUUID: false,
-  subjectID: false,
-  vendorCode: false,
-  subjectName: false,
-  brand: false,
-  title: true,
-  photos: true,
-  video: false,
-  dimensions_length: false,
-  dimensions_width: false,
-  dimensions_height: false,
-  dimensions_isValid: false,
-  characteristics: false,
-  sizes: false,
-  tags: false,
-  createdAt: false,
-  updatedAt: false,
-}
 ) {
   const toSheetData = (content: Nms.Response) => {
     Utils.log('LOG', `Formatting response to sheet data.`)
@@ -446,6 +400,8 @@ function getNms(fields = {
   }
 }
 function getOrders(
+  dateFrom: string = Utils.date.toString(new Date()),
+  flag: 1 | 0 = 1,
   fields = {
     date: false,
     lastChangeDate: false,
@@ -475,8 +431,6 @@ function getOrders(
     gNumber: false,
     srid: false,
   },
-  dateFrom: string = Utils.date.toString(new Date()),
-  flag: 1 | 0 = 1
 ) {
   const toSheetData = (content: Orders.Response) => {
     Utils.log('LOG', `Formatting response to sheet data.`)
@@ -540,6 +494,8 @@ function getOrders(
   }
 }
 function getSales(
+  dateFrom: string = Utils.date.toString(new Date()),
+  flag: 1 | 0 = 1,
   fields = {
     date: true,
     lastChangeDate: true,
@@ -570,8 +526,6 @@ function getSales(
     gNumber: true,
     srid: true,
   },
-  dateFrom: string = Utils.date.toString(new Date()),
-  flag: 1 | 0 = 1
 ) {
   const toSheetData = (content: Sales.Response) => {
     Utils.log('LOG', `Formatting response to sheet data.`)
@@ -630,6 +584,7 @@ function getSales(
   }
 }
 function getStocks(
+  dateFrom: string = Utils.date.toString(new Date()),
   fields = {
     lastChangeDate: false,
     warehouseName: false,
@@ -650,7 +605,6 @@ function getStocks(
     isRealization: false,
     SCCode: false,
   },
-  dateFrom: string = Utils.date.toString(new Date())
 ) {
   const toSheetData = (content: Stocks.Response) => {
     Utils.log('LOG', `Formatting response to sheet data.`)
@@ -704,6 +658,10 @@ function getStocks(
   }
 }
 function getProducts(
+  query: Products.Query = {
+    limit: 1000,
+    offset: 0,
+  },
   fields = {
     nmID: false,
     vendorCode: false,
@@ -715,9 +673,6 @@ function getProducts(
     discount: false,
     editableSizePrice: false,
   },
-  limit: number = 1000,
-  offset: number = 0,
-  filterNmID?: number
 ) {
   const toSheetData = (content: Products.Response) => {
     Utils.log('LOG', `Formatting response to sheet data.`)
@@ -742,7 +697,6 @@ function getProducts(
   };
   try {
     Utils.log('START', 'getProducts.')
-    let query: Products.Query = { limit, offset, filterNmID };
     let response = API.getProducts(query);
     Utils.sheet.put(
       templates.products.name,
@@ -754,8 +708,7 @@ function getProducts(
       }
     );
     while (response.content.data.listGoods.length >= 1000) {
-      offset += 1000;
-      let query: Products.Query = { limit, offset, filterNmID };
+      query.offset += 1000;
       let response = API.getProducts(query);
       Utils.sheet.put(
         templates.products.name,
@@ -779,10 +732,10 @@ function getProducts(
   }
 }
 function getAdLists(fields = {
-  type: false,
-  status: false,
+  type: true,
+  status: true,
   count: false,
-  advertId: false,
+  advertId: true,
   changeTime: false,
 }) {
   const toSheetData = (content: AdLists.Response) => {
@@ -821,141 +774,402 @@ function getAdLists(fields = {
     }
   }
 }
-function getAdInfo(
-  adIds?: number[], 
-  query: AdInfo.Query = {}
+function getAdInfoType8(
+  adIds?: number[],
+  query: AdInfo.Query = {},
+  fields = {
+    endTime: false,
+    createTime: false,
+    changeTime: false,
+    startTime: false,
+    subject_id: false,
+    subject_name: false,
+    sets: false,
+    menus: false,
+    carousel: false,
+    recom: false,
+    booster: false,
+    nm: true,
+    nm_cpm: true,
+    nms: false,
+    cpm: true,
+    name: true,
+    dailyBudget: false,
+    advertId: true,
+    status: true,
+    type: false,
+    paymentType: false
+  },
 ) {
   if (!adIds) {
-    Utils.log('LOG', "No adIds in args. Receiving it from adLists.")
+    Utils.log('LOG', "Receiving adIds from adLists.")
     const sheet = Utils.sheet.get(templates.adLists.name);
+    let adIdsIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "ID кампании") + 1
     adIds = sheet
-      .getRange(2, 4, sheet.getLastRow() - 1, 1)
+      .getRange(2, adIdsIndex, sheet.getLastRow() - 1, 1)
       .getValues()
       .flat();
+    let typesIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "Тип кампании") + 1
+    let types = sheet
+      .getRange(2, typesIndex, sheet.getLastRow() - 1, 1)
+      .getValues()
+      .flat();
+    let statusIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "Статус кампании") + 1
+    let status = sheet
+      .getRange(2, statusIndex, sheet.getLastRow() - 1, 1)
+      .getValues()
+      .flat();
+    adIds = adIds.filter((_, index) => {
+      return types[index] === 8 && (status[index] === 9 || status[index] === 11)
+    })
   }
-  const toSheetData = (content: AdInfo.Response) => {
-    Utils.log('LOG', `Formatting response to sheet data.`)
-    const dataDeprecated: any[][] = [];
-    const dataType8: any[][] = []
-    const dataType9: any[][] = []
-    content.forEach((ad, index) => {
-      try {
-        const line: (number | string | boolean)[] = [
-          ad.endTime,
-          ad.createTime,
-          ad.changeTime,
-          ad.startTime,
-          ad.name,
-          ad.dailyBudget,
-          ad.advertId,
-          ad.status,
-          ad.type,
-          ad.paymentType
+  const toSheetData = (content: AdInfo.Response.Type8) => {
+    const data: any[][] = []
+    content.forEach(advert => {
+      advert.autoParams.nmCPM?.forEach(nm => {
+        const line = [
+          advert.endTime,
+          advert.createTime,
+          advert.changeTime,
+          advert.startTime,
+          advert.autoParams.subject.id,
+          advert.autoParams.subject.name,
+          JSON.stringify(advert.autoParams.sets),
+          JSON.stringify(advert.autoParams.menus),
+          advert.autoParams.active.carousel,
+          advert.autoParams.active.recom,
+          advert.autoParams.active.booster,
+          nm.nm,
+          nm.cpm,
+          JSON.stringify(advert.autoParams.nms),
+          advert.autoParams.cpm,
+          advert.name,
+          advert.dailyBudget,
+          advert.advertId,
+          advert.status,
+          advert.type,
+          advert.paymentType
         ]
-        switch (ad.type) {
-          case 8:
-            if (ad.autoParams.nmCPM) {
-              ad.autoParams.nmCPM.forEach(nm => {
-                dataType8.push(line.concat([
-                  ad.autoParams.subject.id,
-                  ad.autoParams.subject.name,
-                  JSON.stringify(ad.autoParams.sets),
-                  JSON.stringify(ad.autoParams.menus),
-                  ad.autoParams.active.carousel,
-                  ad.autoParams.active.recom,
-                  ad.autoParams.active.booster,
-                  JSON.stringify(ad.autoParams.nms),
-                  nm.nm,
-                  nm.cpm,
-                  ad.autoParams.cpm
-                ]))
-              })
-            }
-            break;
-          case 9:
-            ad.unitedParams.forEach(param => {
-              dataType9.push(line.concat([
-                param.subject.id,
-                param.subject.name,
-                JSON.stringify(param.menus),
-                JSON.stringify(param.nms),
-                param.searchCPM,
-                param.catalogCPM,
-                ad.searchPluseState
-              ]))
-            })
-            break;
-          default:
-            ad.params.forEach(param => {
-              dataDeprecated.push(line.concat([
-                param.subjectName,
-                param.subjectId,
-                param.active,
-                JSON.stringify(param.intervals),
-                param.price,
-                JSON.stringify(param.nms),
-                ad.searchPluseState
-              ]))
-            })
-
-        }
-      } catch (error) {
-        Utils.log("WARN", `On line ${index + 1}:\n` + JSON.stringify(ad));
-      }
-    });
-    return {
-      dataType8,
-      dataType9,
-      dataDeprecated
-    };
-  };
+        data.push(Utils.data.pickFields(line, fields))
+      })
+    })
+    return data
+  }
   try {
-    Utils.log('START', 'getAdInfo.')
-    let payload: AdInfo.Payload = adIds;
-    let response = API.getAdInfo(payload, query);
-    const { dataType8, dataType9, dataDeprecated } = toSheetData(response.content)
-    Utils.sheet.put(
-      templates.adInfo8.name,
-      dataType8,
-      0,
-      1,
-      { clear: true, template: templates.adInfo8.template }
-    );
-    Utils.sheet.put(
-      templates.adInfo9.name,
-      dataType9,
-      0,
-      1,
-      { clear: true, template: templates.adInfo9.template }
-    );
-    Utils.sheet.put(
-      templates.adInfoDeprecated.name,
-      dataDeprecated,
-      0,
-      1,
-      { clear: true, template: templates.adInfoDeprecated.template }
-    );
-    Utils.log('SUCCESS', 'getAdInfo.')
+    Utils.log('START', 'getAdInfoType8.')
+    if (adIds.length) {
+      let payload: AdInfo.Payload = adIds
+      let response = API.getAdInfo(payload, query)
+      Utils.sheet.put(
+        templates.adInfoType8.name, toSheetData((response.content as AdInfo.Response.Type8)),
+        -1, 1, {
+        clear: true,
+        template: Utils.data.pickFields(templates.adInfoType8.template, fields)
+      })
+    } else {
+      Utils.log('WARN', 'No relevant adIds.')
+    }
+    Utils.log('SUCCESS', 'getAdInfoType8.')
   } catch (error) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
-        Utils.triggers.after("getAdInfo", 1000 * 60);
+        Utils.triggers.after("getAdInfoType8", 1000 * 60);
         break;
       default:
         throw error;
     }
   }
 }
-function getAdStats(dates: string[], adIds?: number[]): void
-function getAdStats(interval: { begin: string, end: string }, adIds?: number[]): void
-function getAdStats(datesOrInterval: string[] | { begin: string, end: string }, adIds?: number[]) {
+function getAdInfoType9(
+  adIds?: number[],
+  query: AdInfo.Query = {},
+  fields = {
+    endTime: false,
+    createTime: false,
+    changeTime: false,
+    startTime: false,
+    searchPluseState: false,
+    name: true,
+    subject_id: false,
+    subject_name: false,
+    menus: false,
+    nm: true,
+    searchCPM: true,
+    catalogCPM: true,
+    dailyBudget: false,
+    advertId: true,
+    status: true,
+    paymentType: false,
+    type: false
+  },
+) {
   if (!adIds) {
-    Utils.log('LOG', "No adIds in args. Receiving it from adLists.")
+    Utils.log('LOG', "Receiving adIds from adLists.")
     const sheet = Utils.sheet.get(templates.adLists.name);
+    let adIdsIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "ID кампании") + 1
     adIds = sheet
-      .getRange(2, 4, sheet.getLastRow() - 1, 1)
+      .getRange(2, adIdsIndex, sheet.getLastRow() - 1, 1)
       .getValues()
       .flat();
+    let typesIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "Тип кампании") + 1
+    let types = sheet
+      .getRange(2, typesIndex, sheet.getLastRow() - 1, 1)
+      .getValues()
+      .flat();
+    let statusIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "Статус кампании") + 1
+    let status = sheet
+      .getRange(2, statusIndex, sheet.getLastRow() - 1, 1)
+      .getValues()
+      .flat();
+    adIds = adIds.filter((_, index) => {
+      return types[index] === 9 && (status[index] === 9 || status[index] === 11)
+    })
+  }
+  const toSheetData = (content: AdInfo.Response.Type9) => {
+    const data: any[][] = []
+    content.forEach(advert => {
+      advert.unitedParams.forEach(param => {
+        param.nms.forEach(nm => {
+          const line = [
+            advert.endTime,
+            advert.createTime,
+            advert.changeTime,
+            advert.startTime,
+            advert.searchPluseState,
+            advert.name,
+            param.subject.id,
+            param.subject.name,
+            JSON.stringify(param.menus),
+            nm,
+            param.searchCPM,
+            param.catalogCPM,
+            advert.dailyBudget,
+            advert.advertId,
+            advert.status,
+            advert.paymentType,
+            advert.type
+          ]
+          data.push(Utils.data.pickFields(line, fields))
+        })
+      })
+    })
+    return data
+  }
+  try {
+    Utils.log('START', 'getAdInfoType9.')
+    if (adIds.length) {
+      let payload: AdInfo.Payload = adIds
+      let response = API.getAdInfo(payload, query)
+      Utils.sheet.put(
+        templates.adInfoType9.name, toSheetData((response.content as AdInfo.Response.Type9)),
+        -1, 1, {
+        clear: true,
+        template: Utils.data.pickFields(templates.adInfoType9.template, fields)
+      })
+    } else {
+      Utils.log('WARN', 'No relevant adIds.')
+    }
+    Utils.log('SUCCESS', 'getAdInfoType9.')
+  } catch (error) {
+    switch ((error as HTTPExeption).status) {
+      case HTTPExeptions.TooManyRequests:
+        Utils.triggers.after("getAdInfoType9", 1000 * 60);
+        break;
+      default:
+        throw error;
+    }
+  }
+}
+function getAdInfoDeprecated(
+  adIds?: number[],
+  query: AdInfo.Query = {},
+  fields = {
+    endTime: false,
+    createTime: false,
+    changeTime: false,
+    startTime: false,
+    name: true,
+    subjectName: false,
+    active: true,
+    intervals: false,
+    price: true,
+    menuId: false,
+    subjectId: false,
+    setId: false,
+    setName: false,
+    menuName: false,
+    nm: true,
+    nm_active: true,
+    dailyBudget: false,
+    advertId: true,
+    status: true,
+    type: true,
+    paymentType: false,
+    searchPluseState: false
+  },
+) {
+  if (!adIds) {
+    Utils.log('LOG', "Receiving adIds from adLists.")
+    const sheet = Utils.sheet.get(templates.adLists.name);
+    let adIdsIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "ID кампании") + 1
+    adIds = sheet
+      .getRange(2, adIdsIndex, sheet.getLastRow() - 1, 1)
+      .getValues()
+      .flat();
+    let typesIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "Тип кампании") + 1
+    let types = sheet
+      .getRange(2, typesIndex, sheet.getLastRow() - 1, 1)
+      .getValues()
+      .flat();
+    let statusIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "Статус кампании") + 1
+    let status = sheet
+      .getRange(2, statusIndex, sheet.getLastRow() - 1, 1)
+      .getValues()
+      .flat();
+    adIds = adIds.filter((_, index) => {
+      return types[index] !== 8 && types[index] !== 9 && (status[index] === 9 || status[index] === 11)
+    })
+  }
+  const toSheetData = (content: AdInfo.Response.Deprecated) => {
+    Utils.log('LOG', `Formatting response to sheet data.`)
+    const data: any[][] = [];
+    content.forEach(advert => {
+      advert.params.forEach(param => {
+        param.nms.forEach(nm => {
+          const line = [
+            advert.endTime,
+            advert.createTime,
+            advert.changeTime,
+            advert.startTime,
+            advert.name,
+            param.subjectName,
+            param.active,
+            JSON.stringify(param.intervals),
+            param.price,
+            param.menuId,
+            param.subjectId,
+            param.setId,
+            param.setName,
+            param.menuName,
+            nm.nm,
+            nm.active,
+            advert.dailyBudget,
+            advert.advertId,
+            advert.status,
+            advert.type,
+            advert.paymentType,
+            advert.searchPluseState
+          ]
+          data.push(Utils.data.pickFields(line, fields))
+        })
+      })
+
+    })
+
+    return data
+  }
+  try {
+    Utils.log('START', 'getAdInfoDeprecated.')
+    if (adIds.length) {
+      let payload: AdInfo.Payload = adIds
+      let response = API.getAdInfo(payload, query)
+      Utils.sheet.put(
+        templates.adInfoDeprecated.name, toSheetData((response.content as AdInfo.Response.Deprecated)),
+        -1, 1, {
+        clear: true,
+        template: Utils.data.pickFields(templates.adInfoDeprecated.template, fields)
+      })
+
+    } else {
+      Utils.log('WARN', 'No relevant adIds.')
+    }
+    Utils.log('SUCCESS', 'getAdInfoDeprecated.')
+  } catch (error) {
+    switch ((error as HTTPExeption).status) {
+      case HTTPExeptions.TooManyRequests:
+        Utils.triggers.after("getAdInfoDeprecated", 1000 * 60);
+        break;
+      default:
+        throw error;
+    }
+  }
+}
+function getAdStats(
+  dates: string[],
+  adIds?: number[],
+  fields?: {
+    advertId: boolean,
+    date: boolean,
+    views: boolean,
+    clicks: boolean,
+    ctr: boolean,
+    cpc: boolean,
+    sum: boolean,
+    atbs: boolean,
+    orders: boolean,
+    cr: boolean,
+    shks: boolean,
+    sum_price: boolean,
+    name: boolean,
+    nmId: boolean
+  },
+): void
+function getAdStats(
+  interval: { begin: string, end: string },
+  adIds?: number[],
+  fields?: {
+    advertId: boolean,
+    date: boolean,
+    views: boolean,
+    clicks: boolean,
+    ctr: boolean,
+    cpc: boolean,
+    sum: boolean,
+    atbs: boolean,
+    orders: boolean,
+    cr: boolean,
+    shks: boolean,
+    sum_price: boolean,
+    name: boolean,
+    nmId: boolean
+  },
+): void
+function getAdStats(
+  datesOrInterval: string[] | { begin: string, end: string },
+  adIds?: number[],
+  fields = {
+    advertId: true,
+    date: true,
+    views: true,
+    clicks: true,
+    ctr: true,
+    cpc: true,
+    sum: true,
+    atbs: true,
+    orders: true,
+    cr: true,
+    shks: true,
+    sum_price: true,
+    name: true,
+    nmId: true
+  },
+) {
+  if (!adIds) {
+    Utils.log('LOG', "Receiving adIds from adLists.")
+    const sheet = Utils.sheet.get(templates.adLists.name);
+    let adIdsIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "ID кампании") + 1
+    adIds = sheet
+      .getRange(2, adIdsIndex, sheet.getLastRow() - 1, 1)
+      .getValues()
+      .flat();
+    let statusIndex = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat().findIndex(value => value === "Статус кампании") + 1
+    let status = sheet
+      .getRange(2, statusIndex, sheet.getLastRow() - 1, 1)
+      .getValues()
+      .flat();
+    adIds = adIds.filter((_, index) => {
+      return status[index] === 9 || status[index] === 11
+    })
   }
   const toSheetData = (content: AdStats.Response.WithDate | AdStats.Response.WithInterval) => {
     Utils.log('LOG', `Formatting response to sheet data.`)
@@ -965,7 +1179,7 @@ function getAdStats(datesOrInterval: string[] | { begin: string, end: string }, 
       ad.days.forEach(day => {
         day.apps.forEach(app => {
           app.nm.forEach(nm => {
-            data.push([
+            const line = [
               ad.advertId,
               day.date,
               nm.views,
@@ -980,7 +1194,8 @@ function getAdStats(datesOrInterval: string[] | { begin: string, end: string }, 
               nm.sum_price,
               nm.name,
               nm.nmId
-            ])
+            ]
+            data.push(Utils.data.pickFields(line, fields))
           })
         })
       })
@@ -1011,7 +1226,7 @@ function getAdStats(datesOrInterval: string[] | { begin: string, end: string }, 
         templates.adStats.name,
         toSheetData(response.content),
         0, 1,
-        { template: templates.adStats.template }
+        { template: Utils.data.pickFields(templates.adStats.template, fields) }
       )
     }
     Utils.log('SUCCESS', 'getAdStats.')
@@ -1025,7 +1240,25 @@ function getAdStats(datesOrInterval: string[] | { begin: string, end: string }, 
     }
   }
 }
-function getPcStats(period: { begin: string, end: string }, nmIDs?: number[]) {
+function getPcStats(
+  period: { begin: string, end: string },
+  nmIDs?: number[],
+  fields = {
+    nmID: false,
+    imtName: false,
+    vendorCode: false,
+    dt: false,
+    openCardCount: false,
+    addToCartCount: false,
+    ordersCount: false,
+    ordersSumRub: false,
+    buyoutsCount: false,
+    buyoutsSumRub: false,
+    buyoutPercent: false,
+    addToCartConversion: false,
+    cartToOrderConversion: false
+  },
+) {
   if (!nmIDs) {
     Utils.log('LOG', "Receiving nmIds from nms.")
     const sheet = Utils.sheet.get(templates.nms.name)
@@ -1039,7 +1272,7 @@ function getPcStats(period: { begin: string, end: string }, nmIDs?: number[]) {
     let data: any[][] = [];
     content.data.forEach(row => {
       row.history.forEach(day => {
-        data.push([
+        const line = [
           row.nmID,
           row.imtName,
           row.vendorCode,
@@ -1053,7 +1286,8 @@ function getPcStats(period: { begin: string, end: string }, nmIDs?: number[]) {
           day.buyoutPercent,
           day.addToCartConversion,
           day.cartToOrderConversion
-        ])
+        ]
+        data.push(Utils.data.pickFields(line, fields))
       })
     })
     return data;
@@ -1065,7 +1299,7 @@ function getPcStats(period: { begin: string, end: string }, nmIDs?: number[]) {
     offset += 20
     let response = API.getPcStats(payload)
     Utils.sheet.put(templates.pcStats.name, toSheetData(response.content), 0, 1, {
-      template: templates.pcStats.template,
+      template: Utils.data.pickFields(templates.pcStats.template, fields),
     });
     ScriptProps.nmIDsOffsetPcStats.set(offset)
     while (nmIDs.length > offset) {
@@ -1073,7 +1307,7 @@ function getPcStats(period: { begin: string, end: string }, nmIDs?: number[]) {
       offset += 20
       response = API.getPcStats(payload)
       Utils.sheet.put(templates.pcStats.name, toSheetData(response.content), 0, 1, {
-        template: templates.pcStats.template,
+        template: Utils.data.pickFields(templates.pcStats.template, fields)
       });
       ScriptProps.nmIDsOffsetPcStats.set(offset)
     }
@@ -1088,6 +1322,7 @@ function getPcStats(period: { begin: string, end: string }, nmIDs?: number[]) {
     }
   }
 }
+
 
 //============== simple triggers ==============
 
@@ -1238,17 +1473,7 @@ class Utils {
   }
 }
 class API {
-  private static access = (() => {
-    let access = ScriptProps.accessToken.get()
-    if (!access) {
-      let response = Utils.ui.prompt("Авторизация", "Необходимо ввести токен доступа!\nГде его взять https://dev.wildberries.ru/openapi/api-information#tag/Avtorizaciya", 'OK_CANCEL')
-      if (response.getSelectedButton() === SpreadsheetApp.getUi().Button.OK) {
-        access = response.getResponseText()
-        ScriptProps.accessToken.set(access)
-      }
-    }
-    return access
-  })();
+  private static access = getAccess({ overwrite: false })
   static request = (
     url: string,
     params: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions,
@@ -1364,7 +1589,7 @@ class API {
   static getAdInfo(
     payload: AdInfo.Payload,
     query: AdInfo.Query
-  ): HTTPResponse<AdInfo.Response> {
+  ): HTTPResponse<AdInfo.Response.Type8 | AdInfo.Response.Type9 | AdInfo.Response.Deprecated> {
     Utils.log('LOG', "Receiving https://advert-api.wildberries.ru/adv/v1/promotion/adverts.")
     return this.request(
       "https://advert-api.wildberries.ru/adv/v1/promotion/adverts",
@@ -1411,4 +1636,75 @@ enum HTTPExeptions {
   AccessDenied = 403,
   UnprocessableEntity = 422,
   TooManyRequests = 429,
+}
+function getAccess(options = { overwrite: true }) {
+  if (options.overwrite) ScriptProps.accessToken.del()
+  let access = ScriptProps.accessToken.get()
+  if (!access) {
+    let response = Utils.ui.prompt("Авторизация", "Необходимо ввести токен доступа!\nГде его взять https://dev.wildberries.ru/openapi/api-information#tag/Avtorizaciya", 'OK_CANCEL')
+    if (response.getSelectedButton() === SpreadsheetApp.getUi().Button.OK) {
+      access = response.getResponseText()
+      ScriptProps.accessToken.set(access)
+    }
+  }
+  return access
+}
+function checkConnection() {
+
+  Utils.log("START", "checkConnection.")
+
+  const connection = []
+  const categories = [
+    "https://content-api.wildberries.ru/ping",
+    "https://seller-analytics-api.wildberries.ru/ping",
+    "https://discounts-prices-api.wildberries.ru/ping",
+    "https://marketplace-api.wildberries.ru/ping",
+    "https://statistics-api.wildberries.ru/ping",
+    "https://advert-api.wildberries.ru/ping",
+    "https://feedbacks-api.wildberries.ru/ping",
+    "https://buyer-chat-api.wildberries.ru/ping",
+    "https://supplies-api.wildberries.ru/ping",
+    "https://returns-api.wildberries.ru/ping",
+    "https://documents-api.wildberries.ru/ping",
+    "https://common-api.wildberries.ru/ping"
+  ]
+
+  for (let category of categories) {
+
+    Utils.log('LOG', `Checking connection to ${category}`)
+
+    try {
+      const response = API.request(category, { method: 'get' })
+      connection.push(category + " - " + response.content.Status)
+
+      Utils.log('LOG', `Status "${response.content.Status}".`)
+
+    } catch (error) {
+      switch ((error as HTTPExeption).status) {
+        case HTTPExeptions.TooManyRequests:
+          connection.push(category + " - " + "To many requests.")
+
+          Utils.log('UNSUCCESS', "To many requests.")
+
+          break;
+        case HTTPExeptions.Unauthorized:
+          connection.push(category + " - " + "Unauthorized.")
+
+          Utils.log('UNSUCCESS', "Unauthorized.")
+
+          break;
+        default:
+          throw error;
+      }
+    }
+  }
+  SpreadsheetApp.getUi().alert(connection.join('\n'))
+
+  Utils.log("SUCCESS", "checkConnection.")
+
+}
+function hideSheets() {
+  for (let template in templates) {
+    Utils.sheet.get(templates[template].name).hideSheet()
+  }
 }

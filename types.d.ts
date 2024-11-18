@@ -215,6 +215,102 @@ declare namespace AdInfo {
     direction?: "desc" | "asc";
   };
   type Payload = Array<number>;
+  namespace Response {
+    type Type9 = Array<{
+      endTime: string;
+      createTime: string;
+      changeTime: string;
+      startTime: string;
+      searchPluseState: boolean;
+      name: string;
+      unitedParams: Array<{
+        subject: {
+          id: number;
+          name: string;
+        };
+        menus: Array<{
+          id: number;
+          name: string;
+        }>;
+        nms: Array<number>;
+        searchCPM: number;
+        catalogCPM: number;
+      }>;
+      dailyBudget: number;
+      advertId: number;
+      status: number;
+      type: 9;
+      paymentType: string;
+    }>
+    type Type8 = Array<{
+      endTime: string;
+      createTime: string;
+      changeTime: string;
+      startTime: string;
+      autoParams: {
+        subject: {
+          name: string;
+          id: number;
+        };
+        sets: Array<{
+          name: string;
+          id: number;
+        }>;
+        menus: Array<{
+          id: number;
+          name: string;
+        }>;
+        nms: Array<number>;
+        active: {
+          carousel: boolean;
+          recom: boolean;
+          booster: boolean;
+        };
+        nmCPM: Array<{
+          nm: number;
+          cpm: number;
+        }>;
+        cpm: number;
+      };
+      name: string;
+      dailyBudget: number;
+      advertId: number;
+      status: number;
+      type: 8;
+      paymentType: string;
+    }>
+    type Deprecated = Array<{
+      endTime: string;
+      createTime: string;
+      changeTime: string;
+      startTime: string;
+      name: string;
+      params: Array<{
+        intervals: Array<{
+          begin: number;
+          end: number;
+        }>;
+        price: number;
+        menuId?: number; 
+        subjectId: number;
+        setId?: number;
+        setName?: string;
+        menuName?: string;
+        subjectName?: string;
+        nms: Array<{
+          nm: number;
+          active: boolean;
+        }>;
+        active: boolean;
+      }>;
+      dailyBudget: number;
+      advertId: number;
+      status: number;
+      type: 4 | 5 | 6 | 7;
+      paymentType: string;
+      searchPluseState: boolean;
+    }>
+  }
   type Response = Array<
     | {
         endTime: string;
