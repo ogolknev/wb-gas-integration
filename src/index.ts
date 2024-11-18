@@ -1425,8 +1425,8 @@ class Utils {
         template?: any[][];
       }
     ) => {
-      Utils.log("START", `Transfering data to a sheet "${sheetName}".`);
       if (MODE === 'test') return null
+      Utils.log("START", `Transfering data to a sheet "${sheetName}".`);
       const sheet = Utils.sheet.get(sheetName);
       if (options) {
         if (options.clear) {
@@ -1450,10 +1450,10 @@ class Utils {
       if (MODE === 'test') return null
       const sheet = Utils.sheet.get(sheetName)
 
-      if (sheet.getMaxRows() > sheet.getLastRow()) {
+      if (sheet.getLastRow() && sheet.getMaxRows() > sheet.getLastRow()) {
         sheet.deleteRows(sheet.getLastRow() + 1, sheet.getMaxRows() - sheet.getLastRow())
       }
-      if (sheet.getMaxColumns() > sheet.getLastColumn()) {
+      if (sheet.getLastColumn() && sheet.getMaxColumns() > sheet.getLastColumn()) {
         sheet.deleteColumns(sheet.getLastColumn() + 1, sheet.getMaxColumns() - sheet.getLastColumn())
       }
     }
