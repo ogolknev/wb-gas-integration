@@ -1242,7 +1242,7 @@ function getAdStats(
   }
 }
 function getPcStats(
-  period: { begin: string, end: string },
+  period?: { begin: string, end: string },
   nmIDs?: number[],
   fields = {
     nmID: true,
@@ -1267,6 +1267,16 @@ function getPcStats(
       .getRange(2, 1, sheet.getLastRow() - 1, 1)
       .getValues()
       .flat()
+  }
+  if (!period) {
+    let curDate = new Date()
+    let weekAgoDate = new Date()
+    weekAgoDate.setDate(curDate.getDate() - 7)
+
+    period = {
+      begin: Utils.date.toString(weekAgoDate, '-'),
+      end: Utils.date.toString(curDate, '-')
+    }
   }
   const toSheetData = (content: PcStats.Response) => {
     Utils.log('LOG', `Formatting response to sheet data.`)
