@@ -1330,6 +1330,8 @@ function onOpen() {
   const ui = SpreadsheetApp.getUi()
   ui.createMenu('API')
     .addItem('Проверить подключение', 'checkConnection')
+    .addSeparator()
+    .addItem('Изменить ключ доступа', 'getAccess')
     .addToUi()
 }
 
