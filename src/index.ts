@@ -586,6 +586,7 @@ function getSales(
     Utils.sheet.put(TEMPLATES.sales.name, toSheetData(response.content), 0, 1, {
       template: Utils.data.pickFields(TEMPLATES.sales.template, fields),
     });
+    Utils.sheet.removeEmptyCells(TEMPLATES.sales.name)
     Utils.log('SUCCESS', 'getSales.')
   } catch (error) {
     switch ((error as HTTPExeption).status) {
@@ -660,6 +661,7 @@ function getStocks(
         template: Utils.data.pickFields(TEMPLATES.stocks.template, fields)
       }
     );
+    Utils.sheet.removeEmptyCells(TEMPLATES.stocks.name)
     Utils.log('SUCCESS', 'getStocks.')
   } catch (error) {
     switch ((error as HTTPExeption).status) {
@@ -734,6 +736,7 @@ function getProducts(
         }
       );
     }
+    Utils.sheet.removeEmptyCells(TEMPLATES.products.name)
     Utils.log('SUCCESS', 'getProducts.')
   } catch (error) {
     switch ((error as HTTPExeption).status) {
@@ -770,6 +773,7 @@ function getAdLists(fields = {
     return data;
   };
   try {
+    Utils.log('START', 'getAdLists.')
     let response = API.getAdLists();
     Utils.sheet.put(
       TEMPLATES.adLists.name,
@@ -778,6 +782,8 @@ function getAdLists(fields = {
       1,
       { clear: true, template: Utils.data.pickFields(TEMPLATES.adLists.template, fields) }
     );
+    Utils.sheet.removeEmptyCells(TEMPLATES.adLists.name)
+    Utils.log('SUCCESS', 'getAdLists.')
   } catch (error) {
     switch ((error as HTTPExeption).status) {
       case HTTPExeptions.TooManyRequests:
@@ -883,6 +889,7 @@ function getAdInfoType8(
     } else {
       Utils.log('WARN', 'No relevant adIds.')
     }
+    Utils.sheet.removeEmptyCells(TEMPLATES.adInfoType8.name)
     Utils.log('SUCCESS', 'getAdInfoType8.')
   } catch (error) {
     switch ((error as HTTPExeption).status) {
@@ -983,6 +990,7 @@ function getAdInfoType9(
     } else {
       Utils.log('WARN', 'No relevant adIds.')
     }
+    Utils.sheet.removeEmptyCells(TEMPLATES.adInfoType9.name)
     Utils.log('SUCCESS', 'getAdInfoType9.')
   } catch (error) {
     switch ((error as HTTPExeption).status) {
@@ -1097,6 +1105,7 @@ function getAdInfoDeprecated(
     } else {
       Utils.log('WARN', 'No relevant adIds.')
     }
+    Utils.sheet.removeEmptyCells(TEMPLATES.adInfoDeprecated.name)
     Utils.log('SUCCESS', 'getAdInfoDeprecated.')
   } catch (error) {
     switch ((error as HTTPExeption).status) {
@@ -1243,6 +1252,7 @@ function getAdStats(
         { template: Utils.data.pickFields(TEMPLATES.adStats.template, fields) }
       )
     }
+    Utils.sheet.removeEmptyCells(TEMPLATES.adStats.name)
     Utils.log('SUCCESS', 'getAdStats.')
   } catch (error) {
     switch ((error as HTTPExeption).status) {
@@ -1336,6 +1346,7 @@ function getPcStats(
       ScriptProps.nmIDsOffsetPcStats.set(offset)
     }
     ScriptProps.nmIDsOffsetPcStats.del()
+    Utils.sheet.removeEmptyCells(TEMPLATES.pcStats.name)
     Utils.log('SUCCESS', "getPcStats.")
   } catch (error: unknown) {
     switch ((error as HTTPExeption).status) {
