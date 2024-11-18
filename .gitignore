@@ -1,8 +1,8 @@
 **/**
 
+!src/
+!src/*
 !.gitignore
 !appsscript.json
-!types.d.ts
-!index.ts
 !package.json
 !README.md
