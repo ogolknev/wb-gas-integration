@@ -7,7 +7,7 @@ const TAB = {
 }
 const TEMPLATES = {
   nms: {
-    name: "API ☍ Артикулы",
+    name: "api_nms",
     template: [
       [
         "Артикул WB",
@@ -33,7 +33,7 @@ const TEMPLATES = {
     ],
   },
   orders: {
-    name: "API ☍ Заказы",
+    name: "api_orders",
     template: [
       [
         "Дата и время заказа",
@@ -67,7 +67,7 @@ const TEMPLATES = {
     ],
   },
   sales: {
-    name: "API ☍ Продажи",
+    name: "api_sales",
     template: [
       [
         "Дата и время продажи",
@@ -102,7 +102,7 @@ const TEMPLATES = {
     ],
   },
   stocks: {
-    name: "API ☍ Остатки",
+    name: "api_stocks",
     template: [
       [
         "Дата и время обновления информации в сервисе",
@@ -127,7 +127,7 @@ const TEMPLATES = {
     ],
   },
   products: {
-    name: "API ☍ Продукты",
+    name: "api_products",
     template: [
       [
         "Артикул WB",
@@ -143,7 +143,7 @@ const TEMPLATES = {
     ],
   },
   adLists: {
-    name: "API ☍ Список РК",
+    name: "api_ad_lists",
     template: [
       [
         "Тип кампании",
@@ -155,7 +155,7 @@ const TEMPLATES = {
     ],
   },
   adInfoType8: {
-    name: "API ☍ РК инфо. Авто",
+    name: "api_ad_info_type8",
     template: [
       [
         "Дата завершения кампании",
@@ -183,7 +183,7 @@ const TEMPLATES = {
     ],
   },
   adInfoType9: {
-    name: "API ☍ РК инфо. Аукцион",
+    name: "api_ad_info_type9",
     template: [
       [
         "Дата завершения кампании",
@@ -207,7 +207,7 @@ const TEMPLATES = {
     ],
   },
   adInfoDeprecated: {
-    name: "API ☍ РК инфо. Устаревшие",
+    name: "api_ad_info_deprecated",
     template: [
       [
         "Дата завершения кампании",
@@ -236,7 +236,7 @@ const TEMPLATES = {
     ],
   },
   adStats: {
-    name: "API ☍ РК статистика",
+    name: "api_ad_stats",
     template: [[
       "ID кампании",
       "Дата, за которую представлены данные",
@@ -255,7 +255,7 @@ const TEMPLATES = {
     ]]
   },
   pcStats: {
-    name: "API ☍ КТ статистика",
+    name: "api_pc_stats",
     template: [[
       "Артикул WB",
       "Наименование карточки товара",
