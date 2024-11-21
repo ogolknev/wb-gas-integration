@@ -1,6 +1,6 @@
 //============== state ==============
 
-let MODE: 'dev' | 'test' | 'prod' = 'test'
+let MODE: 'dev' | 'test' | 'prod' = 'dev'
 const TAB = {
   count: 0,
   str: " ✦ "
@@ -416,6 +416,7 @@ function getNms(
       });
     }
     Utils.sheet.removeEmptyCells(TEMPLATES.nms.name)
+    Utils.sheet.createNamedRanges(TEMPLATES.nms.name)
     Utils.log('SUCCESS', "getNms.")
     return 0
   } catch (error: unknown) {
@@ -511,6 +512,7 @@ function getOrders(
       }
     );
     Utils.sheet.removeEmptyCells(TEMPLATES.orders.name)
+    Utils.sheet.createNamedRanges(TEMPLATES.orders.name)
     Utils.log('SUCCESS', "getOrders.")
     return 0
   } catch (error: unknown) {
@@ -1485,6 +1487,18 @@ class Utils {
       if (sheet.getLastColumn() && sheet.getMaxColumns() > sheet.getLastColumn()) {
         sheet.deleteColumns(sheet.getLastColumn() + 1, sheet.getMaxColumns() - sheet.getLastColumn())
       }
+    },
+    createNamedRanges: (sheetName: string) => {
+      const sheet = Utils.sheet.get(sheetName)
+      const lastRow = sheet.getLastRow()
+      let range: GoogleAppsScript.Spreadsheet.Range
+
+      const headers: string[] = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues().flat()
+
+      headers.forEach((header, index) => {
+        range = sheet.getRange(2, index + 1, lastRow - 1, 1)
+        SpreadsheetApp.getActiveSpreadsheet().setNamedRange(header.toLowerCase().replace(/ /g, "_").replace(/,/g, "") + "__" + sheetName, range)
+      })
     }
   };
   static triggers = {
