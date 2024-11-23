@@ -307,7 +307,7 @@ class ScriptCache {
 
 function execTest() {
   MODE = 'test'
-  const result = []
+  const result: string[] = []
   if (getNms() === 0) result.push('OK - getNms')
     else result.push('FAILED - getNms')
   if (getOrders() === 0) result.push('OK - getOrders')
@@ -744,7 +744,7 @@ function getProducts(
       }
     );
     while (response.content.data.listGoods.length >= 1000) {
-      query.offset += 1000;
+      query.offset = (query.offset ?? 0) + 1000;
       let response = API.getProducts(query);
       Utils.sheet.put(
         TEMPLATES.products.name,
@@ -1161,7 +1161,7 @@ function getAdStats(
     name: boolean,
     nmId: boolean
   },
-): number
+): number | undefined
 function getAdStats(
   interval: { begin: string, end: string },
   adIds?: number[],
@@ -1181,9 +1181,9 @@ function getAdStats(
     name: boolean,
     nmId: boolean
   },
-): number
+): number | undefined
 function getAdStats(
-  datesOrInterval: string[] | { begin: string, end: string },
+  datesOrInterval?: string[] | { begin: string, end: string },
   adIds?: number[],
   fields = {
     advertId: true,
@@ -1542,10 +1542,10 @@ class Utils {
     }
   }
   static data = {
-    pickFields(data: (string | number | boolean)[] | (string | number | boolean)[][], fields: { [key: string]: boolean }) {
-      let result = []
+    pickFields(data: (string | number | boolean | undefined)[] | (string | number | boolean | undefined)[][], fields: { [key: string]: boolean }) {
+      let result: any[] = []
       if (Array.isArray(data[0])) {
-        for (let line of data as (string | number | boolean)[][]) {
+        for (let line of data as (string | number | boolean | undefined)[][]) {
           result.push(Utils.data.pickFields(line, fields))
         }
       }
@@ -1739,7 +1739,7 @@ function checkConnection() {
 
   Utils.log("START", "checkConnection.")
 
-  const connection = []
+  const connection: string[] = []
   const categories = [
     "https://content-api.wildberries.ru/ping",
     "https://seller-analytics-api.wildberries.ru/ping",
